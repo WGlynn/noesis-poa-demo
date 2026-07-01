@@ -1,5 +1,27 @@
 # HANDOFF — Noesis "Proof of Authority you can't buy" demo (2026-07-01)
 
+> ✅ **PROTOTYPE 2 SHIPPED (2026-07-01): feed REAL contributions in + tabbed nav.** LIVE on
+> https://noesis-poa-demo.vercel.app. Panel 02 now has an "import a real one" box:
+> - **GitHub — live now, zero infra.** Paste a commit / PR / issue / repo URL → fetched from the public
+>   CORS API (`api.github.com`), text extracted, scored through the real novelty path. Verified
+>   end-to-end (ethereum/EIPs#3 → @wanderer). Client fns `importURL`/`fetchGitHub`/`ghApi` in index.html.
+> - **Reddit — OAuth proxy built (`api/reddit.js`), waits on creds.** Reddit 403s unauthenticated `.json`
+>   from datacenter IPs, so I built an app-only (`client_credentials`) token-mint + cache proxy. **Will-gated
+>   one-time step:** create a Reddit app (reddit.com/prefs/apps → "web app") then
+>   `vercel env add REDDIT_CLIENT_ID` + `REDDIT_CLIENT_SECRET` + redeploy. Until then it returns a clean
+>   "Reddit not configured" (no crash). Portable by design — **lift `api/reddit.js` + the 2 env vars to Boris.**
+> - **X / Telegram / anything else — paste.** The text box scores words regardless of platform.
+> - **Soulbound attribution (answers Maarten's "share anything even if not yours"):** importing someone
+>   else's PR binds standing to the ORIGINAL author (`@login` from the API), labels you the third-party
+>   surfacer. Sharing another's work prices THEIR contribution, not yours — reinforces panel 03.
+> - **Navigation:** single long scroll → sticky tab nav (01 floor / 02 novelty / 03 soulbound / 04 nash),
+>   one panel at a time, `#1`–`#4` hash-routable, mobile-scrollable. Fn `show(n)`.
+>
+> ▶ **OPEN for Prototype 2:** (a) Will creates the Reddit app + sets the 2 env vars → Reddit goes live.
+> (b) Maarten's idea: a **finder's/curation reward** for the third-party surfacer (separate incentive from
+> the author's soulbound standing) — design note, not built. (c) real novelty wasm export still pending
+> (still the faithful JS port; see Graduation 1 note below).
+
 > ✅ **GRADUATION 1 DONE (2026-07-01): the real Noesis core runs in the browser.** The finalize verdict
 > now comes from `noesis-core::finalizes_pos_pom_fixed` compiled to wasm32 (`wasm/` crate → `noesis_poa.wasm`,
 > 5KB), wired into `index.html`, Node-parity-verified (whale-alone REJECTED, everyone FINALIZES). Full neon
@@ -7,11 +29,23 @@
 > `WGlynn/noesis-poa-demo` (wasm/target gitignored). Novelty still a faithful JS port (labeled); learned v(S)
 > still the openly-shown frontier.
 >
-> ▶ **NEXT (open):** (a) install @testdriverai on the repo → end-to-end verify the in-browser render+clicks
-> (only thing not self-verified). (b) OPTIONAL: export the real novelty (`coverage`/`semantic_floor_q16` from
-> noesis-core) to wasm too — needs string-marshaling across the boundary (alloc + memory export), left for a
-> fresh session. (c) GRADUATION 2 (the funded research bet): learned v(S) beats a fixed proxy on real labels
-> (first test null). (d) share the prototype with Pragma.
+> ✅ **PANEL 04 — Nash equilibrium (2026-07-01, HL's question, visual):** payoff table (honest EARN /
+> impersonate 0 / lie LOSE / pad 0 / sybil <=0 => honest = unique best response = Nash eq) + interactive
+> honest-report IC calc (expected payoff of lying = (1-p)*g - p*b, live sliders). Honest scope: demonstrated
+> unilateral + cyclic (nash_honesty); symmetric-lie ring + adaptive/learned-v(S) named as frontier. Grounds
+> in `~/noesis/internal/thesis/DESIGN-wills-equilibrium.md` (HCE M1). LIVE + verified.
+> NOTE: HL | CKBased.bit = the "friend" who asked the impersonation Q; CKB-tuned text answer given in-chat
+> (soulbound = type_script.args, ownership = lock.args); Gmail draft r2062801939364981661 has the generic version.
+>
+> ▶▶ **TOP PRIORITY NEXT SESSION (Will 2026-07-01): PROTOTYPE 2** — let people feed REAL contribution
+> examples from Telegram / Reddit / GitHub into the demo and see what standing they earn. Full spec:
+> `PROTOTYPE-SPEC.md` § "PROTOTYPE 2" (GitHub-import first = CORS-friendly public API; Reddit via a tiny
+> Vercel serverless proxy; Telegram = paste for v1). This is the demo→prototype jump on the DATA axis.
+>
+> ▶ **also open (lower):** (a) install @testdriverai on the repo → verify in-browser render+clicks. (b) real
+> novelty wasm export (`coverage`/`semantic_floor_q16`, needs string marshaling) — pairs with Prototype 2.
+> (c) Graduation 2 (funded research bet): learned v(S) beats a fixed proxy on real labels (first test null).
+> (d) share the prototype with Pragma.
 >
 > BUILD NOTES: wasm crate is `no_std` cdylib, bump allocator + panic handler, flat C-ABI (`floor_finalizes`,
 > f64 args + u32 mask/threshold, no wasm-bindgen). Toolchain: rustup + `wasm32-unknown-unknown` target

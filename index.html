@@ -67,6 +67,16 @@
     padding:7px 13px; font-family:var(--mono); font-size:12px; letter-spacing:.03em; cursor:pointer; margin:0 7px 8px 0; transition:.15s; }
   .btn:hover{ border-color:var(--cyan); color:#eafcff; box-shadow:0 0 16px rgba(34,224,255,.22); }
 
+  .nav{ position:sticky; top:0; z-index:20; display:flex; gap:7px; flex-wrap:wrap;
+    padding:12px 0 13px; margin:6px 0 22px; background:linear-gradient(180deg,var(--bg) 72%,rgba(4,6,12,0));
+    backdrop-filter:blur(8px); border-bottom:1px solid var(--line); }
+  .navbtn{ background:transparent; color:var(--dim); border:1px solid var(--line); border-radius:9px;
+    padding:8px 14px; font-family:var(--mono); font-size:12px; letter-spacing:.04em; cursor:pointer; transition:.15s; }
+  .navbtn:hover{ color:var(--ink); border-color:var(--cyan); }
+  .navbtn.active{ color:#eafcff; border-color:var(--cyan); background:rgba(34,224,255,.09);
+    box-shadow:0 0 18px rgba(34,224,255,.16) inset; text-shadow:0 0 10px rgba(34,224,255,.4); }
+  .card.hidden{ display:none; }
+
   .bar{ margin-top:15px; padding:14px 16px; border-radius:11px; border:1px solid var(--line); background:#05090f; font-size:13px; }
   .tag{ display:inline-block; font-weight:700; font-size:11.5px; letter-spacing:.1em; padding:3px 11px; border-radius:999px; margin-right:8px; }
   .tag.yes{ color:var(--grn); border:1px solid rgba(59,255,171,.5); background:rgba(59,255,171,.06); text-shadow:0 0 10px rgba(59,255,171,.5); box-shadow:0 0 16px rgba(59,255,171,.14); }
@@ -82,6 +92,8 @@
     .hero{ padding:38px 0 24px; } .hero h1{ font-size:24px; } .wrap{ padding:0 14px 76px; }
     .card{ padding:18px 15px; } input[type=number]{ width:84px; padding:6px 7px; }
     th,td{ padding:6px 6px; font-size:12.5px; } th{ font-size:9.5px; } .mark{ letter-spacing:.3em; }
+    .nav{ flex-wrap:nowrap; overflow-x:auto; -webkit-overflow-scrolling:touch; gap:6px; }
+    .navbtn{ white-space:nowrap; font-size:11px; padding:7px 11px; }
   }
 </style>
 </head>
@@ -103,7 +115,14 @@
       (<code>finalizes_pos_pom_fixed</code>), compiled to WebAssembly. same arithmetic the on-VM finalization script runs.</div>
   </div>
 
-  <div class="card">
+  <nav class="nav" id="nav">
+    <button class="navbtn active" onclick="show(1)">01 · the floor</button>
+    <button class="navbtn" onclick="show(2)">02 · novelty</button>
+    <button class="navbtn" onclick="show(3)">03 · soulbound</button>
+    <button class="navbtn" onclick="show(4)">04 · nash</button>
+  </nav>
+
+  <div class="card" id="sec1">
     <div class="step">01 — the anti-concentration floor</div>
     <h2>Capital cannot capture finalization</h2>
     <p class="hint">Finalizes only if the signers independently clear <b>50% of BOTH</b> capital (stake)
@@ -123,7 +142,7 @@
     <div class="bar" id="verdictA"></div>
   </div>
 
-  <div class="card">
+  <div class="card hidden" id="sec2">
     <div class="step">02 — strategyproof novelty</div>
     <h2>Type a contribution and try to game it</h2>
     <p class="hint">Standing is earned only from novel work. Paste an existing entry (earns 0), reword it,
@@ -136,10 +155,23 @@
       <button class="btn" onclick="fillCopy()">paste an existing one</button>
       <button class="btn" onclick="fillParaphrase()">reword the first one</button>
     </div>
+
+    <div style="margin-top:18px;border-top:1px solid var(--line);padding-top:16px">
+      <div class="step" style="letter-spacing:.2em">or import a real one</div>
+      <p class="hint" style="margin:6px 0 12px">Score an <b>actual</b> contribution. Paste a GitHub
+        commit / PR / issue / repo URL, or a Reddit post / comment link &mdash; fetched live and scored
+        through the same novelty path. Telegram / X / anything else: paste its text in the box above &mdash;
+        the protocol prices words, not the platform.</p>
+      <input type="text" id="srcurl" placeholder="github.com/…/pull/123   ·   reddit.com/r/…/comments/…" autocomplete="off" />
+      <div style="margin-top:10px">
+        <button class="btn" onclick="importURL()">fetch &amp; score</button>
+        <button class="btn" onclick="fillExample()">example: a real PR</button>
+      </div>
+    </div>
     <div class="bar" id="verdictB"></div>
   </div>
 
-  <div class="card">
+  <div class="card hidden" id="sec3">
     <div class="step">03 — soulbound</div>
     <h2>Authority cannot be transferred</h2>
     <p class="hint">Standing binds to the identity that earned it. Stake is transferable; authority is not.</p>
@@ -147,7 +179,7 @@
     <div class="bar" id="verdictC"><span class="dim">click above.</span></div>
   </div>
 
-  <div class="card">
+  <div class="card hidden" id="sec4">
     <div class="step">04 — the nash equilibrium</div>
     <h2>Lying doesn't pay: honesty is the best response</h2>
     <p class="hint">HL asked: what if I pretend to be someone, or lie about a contribution? Here is every
@@ -277,6 +309,68 @@ function fillParaphrase(){
     `closing it needs the learned value function (first real-data test null). We show it, not hide it.</span>`;
 }
 
+// ===== Prototype 2 — import a REAL contribution (share from GitHub / Reddit) =====
+function esc(s){ return (s||"").replace(/[&<>]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;"}[c])); }
+function fillExample(){ document.getElementById("srcurl").value="https://github.com/ethereum/EIPs/pull/3"; importURL(); }
+
+async function importURL(){
+  const raw=document.getElementById("srcurl").value.trim();
+  const el=document.getElementById("verdictB");
+  if(!raw){ el.innerHTML=`<span class="dim">paste a GitHub or Reddit URL first.</span>`; return; }
+  let host=""; try{ host=new URL(raw).hostname.replace(/^www\./,""); }
+  catch(_){ el.innerHTML=`<span class="no">that isn't a valid URL.</span>`; return; }
+  el.innerHTML=`<span class="dim">fetching…</span>`;
+  try{
+    let r;
+    if(host==="github.com"||host==="api.github.com") r=await fetchGitHub(raw);
+    else if(host.endsWith("reddit.com")) r=await fetchReddit(raw);
+    else { el.innerHTML=`<span class="warn">${esc(host)} can't be fetched from the browser</span> `+
+      `<span class="dim">(GitHub and Reddit are wired; X and others require paid/auth APIs). `+
+      `Copy the post's text into the box above &mdash; the protocol scores the words, not the source.</span>`; return; }
+    if(!r.text){ el.innerHTML=`<span class="no">no text found at that URL.</span>`; return; }
+    document.getElementById("work").value=r.text;
+    const v=novelty(r.text,corpus);
+    const score = v===0 ? `<span class="big no">0 standing</span> &mdash; duplicate of the existing record`
+      : v<0.4 ? `<span class="big warn">${v} standing</span> &mdash; low novelty vs the record`
+      : `<span class="big ok">${v} standing</span> &mdash; novel against the record`;
+    // soulbound attribution — answers Maarten: you can share ANYONE's work; standing binds to its author, not to you.
+    const attrib = r.author
+      ? `<div style="margin-top:8px" class="dim">standing binds to <span class="cy">@${esc(r.author)}</span> (soulbound to the author) &mdash; `+
+        `you surfaced it as a third party. sharing someone else's work prices <i>their</i> contribution, not yours.</div>`
+      : "";
+    el.innerHTML=`imported <span class="cy">${esc(r.label)}</span> · earns ${score}. `+
+      `<span class="dim">real text, real novelty path.</span>${attrib}`;
+  }catch(e){ el.innerHTML=`<span class="no">fetch failed</span> <span class="dim">(${esc(e.message||String(e))})</span>`; }
+}
+
+function ghApi(u){
+  const p=new URL(u).pathname.replace(/^\/|\/$/g,"").split("/");
+  const [o,r,kind,id]=p;
+  if(!o||!r) throw new Error("not a GitHub repo URL");
+  if(kind==="commit") return {api:`https://api.github.com/repos/${o}/${r}/commits/${id}`,
+    pick:j=>({text:j.commit&&j.commit.message||"", author:(j.author&&j.author.login)||(j.commit&&j.commit.author&&j.commit.author.name)||"", label:`${o}/${r}@${id.slice(0,7)}`})};
+  if(kind==="pull") return {api:`https://api.github.com/repos/${o}/${r}/pulls/${id}`,
+    pick:j=>({text:`${j.title||""}\n\n${j.body||""}`.trim(), author:j.user&&j.user.login||"", label:`${o}/${r}#${id} (PR)`})};
+  if(kind==="issues") return {api:`https://api.github.com/repos/${o}/${r}/issues/${id}`,
+    pick:j=>({text:`${j.title||""}\n\n${j.body||""}`.trim(), author:j.user&&j.user.login||"", label:`${o}/${r}#${id} (issue)`})};
+  return {api:`https://api.github.com/repos/${o}/${r}`,
+    pick:j=>({text:j.description||"", author:j.owner&&j.owner.login||"", label:`${o}/${r}`})};
+}
+async function fetchGitHub(u){
+  const {api,pick}=ghApi(u);
+  const res=await fetch(api,{headers:{Accept:"application/vnd.github+json"}});
+  if(res.status===403) throw new Error("GitHub rate limit (60/hr unauth) — try again later");
+  if(res.status===404) throw new Error("not found (private or bad URL)");
+  if(!res.ok) throw new Error("GitHub "+res.status);
+  return pick(await res.json());
+}
+async function fetchReddit(u){
+  const res=await fetch("/api/reddit?url="+encodeURIComponent(u));
+  const j=await res.json().catch(()=>({error:"reddit proxy "+res.status}));
+  if(!res.ok||j.error) throw new Error(j.error||("reddit proxy "+res.status));
+  return {text:j.text||"", author:j.author||"", label:j.label||"reddit"};
+}
+
 // ===== Panel C =====
 function tryBuy(){ document.getElementById("verdictC").innerHTML=
   `<span class="tag no">REFUSED</span> Standing is soulbound &mdash; there is no transfer function. Capital buys nothing.`; }
@@ -299,10 +393,19 @@ function updateIC(){
   else el.innerHTML=`expected payoff of lying = <span class="big no">${ev.toFixed(2)}</span> · <span class="tag no">lying would pay</span> <span class="dim">— which is exactly what a high catch-probability p (peer-prediction) and a real bond b are there to prevent.</span>`;
 }
 
+// ===== section navigation =====
+function show(n){
+  for(let i=1;i<=4;i++) document.getElementById("sec"+i).classList.toggle("hidden", i!==n);
+  document.querySelectorAll(".navbtn").forEach((b,i)=>b.classList.toggle("active", i===n-1));
+  if(location.hash!=="#"+n) history.replaceState(null,"","#"+n);
+  window.scrollTo({top:0,behavior:"smooth"});
+}
+
 // init
 renderRows(); updateA(); renderCorpus();
 renderIC(); updateIC();
 document.getElementById("work").addEventListener("input",updateB); updateB();
+{ const n=parseInt((location.hash||"").replace("#",""),10); if(n>=1&&n<=4) show(n); }
 </script>
 </body>
 </html>
