@@ -121,6 +121,7 @@
     <button class="navbtn" onclick="show(3)">03 · soulbound</button>
     <button class="navbtn" onclick="show(4)">04 · nash</button>
     <button class="navbtn" onclick="show(5)">05 · finder's reward</button>
+    <button class="navbtn" onclick="show(6)">06 · provenance</button>
   </nav>
 
   <div class="card" id="sec1">
@@ -159,11 +160,14 @@
 
     <div style="margin-top:18px;border-top:1px solid var(--line);padding-top:16px">
       <div class="step" style="letter-spacing:.2em">or import a real one</div>
-      <p class="hint" style="margin:6px 0 12px">Score an <b>actual</b> contribution. Paste a GitHub
-        commit / PR / issue / repo URL, or a Reddit post / comment link &mdash; fetched live and scored
-        through the same novelty path. Telegram / X / anything else: paste its text in the box above &mdash;
-        the protocol prices words, not the platform.</p>
-      <input type="text" id="srcurl" placeholder="github.com/…/pull/123   ·   reddit.com/r/…/comments/…" autocomplete="off" />
+      <p class="hint" style="margin:6px 0 10px">Score an <b>actual</b> contribution. Paste a GitHub
+        commit / PR / issue / repo URL &mdash; fetched live from the keyless public API and scored through
+        the same novelty path. For Reddit, X, Telegram, a blog: paste the text in the box above.</p>
+      <p class="hint" style="margin:0 0 14px;border-left:2px solid var(--cyan);padding-left:12px;color:var(--dim)">
+        The protocol only ever sees <b>the words and who's attesting them</b>. How a contribution
+        arrives &mdash; paste, a repo API, any relay &mdash; is off-chain and swappable. Nothing here
+        holds a key.</p>
+      <input type="text" id="srcurl" placeholder="github.com/…/pull/123" autocomplete="off" />
       <div style="margin-top:10px">
         <button class="btn" onclick="importURL()">fetch &amp; score</button>
         <button class="btn" onclick="fillExample()">example: a real PR</button>
@@ -233,6 +237,57 @@
     <p class="hint" style="margin-top:16px">Ingestion mechanism proposed by <b>Maarten G</b> (2026-07-01):
       <span class="dim">"let users share anything, even if it's not theirs, with a possibility of reward as a
       third party." This is that idea, made safe by putting it on the transferable axis.</span></p>
+  </div>
+
+  <div class="card hidden" id="sec6">
+    <div class="step">06 — provenance</div>
+    <h2>Provenance is an airgap problem &mdash; and honesty is what closes it</h2>
+    <p class="hint">The chain can't see who made something, or when, out in the world. The tempting fix is
+      to <i>reach across</i> the gap &mdash; fetch it from a GitHub or Reddit API and trust their word.
+      That just relocates trust to an oracle. Noesis does the opposite: it makes lying about provenance
+      <b>unprofitable</b>, so it never has to reach across.</p>
+
+    <div class="bar">
+      <span class="cy">the engine</span> &mdash; the on-chain <b>commit</b> is the native timestamp
+      (content hash + block height + identity). Claiming someone else's earlier work is a losing bet: a
+      fresh identity is worth 0, priority can't be back-dated, and a false claim is a bonded self-report
+      &mdash; caught, the bond is slashed and the over-claim clawed back. <span class="dim">(that's
+      panel 04, on the provenance axis.)</span>
+    </div>
+
+    <div class="hint" style="margin-top:16px">stronger proof doesn't <i>create</i> trust &mdash; it just
+      raises the odds a lie is caught, lowering the enforcement cost. pick what the submitter brings:</div>
+    <div style="margin-top:10px">
+      <button class="btn" onclick="setProv('bare')">bare claim (paste)</button>
+      <button class="btn" onclick="setProv('crypto')">cryptographic proof</button>
+      <button class="btn" onclick="setProv('pragma')">Pragma observer-overlap</button>
+    </div>
+    <div class="bar" id="provout"></div>
+
+    <div class="tscroll" style="margin-top:16px"><table>
+      <thead><tr><th>rung</th><th>un-forgeable by</th><th>when it applies</th></tr></thead>
+      <tbody>
+        <tr><td>on-chain commit / hash root</td><td>collision resistance</td><td style="text-align:right">native &mdash; the commit itself</td></tr>
+        <tr><td>Pragma coherence / observer-overlap</td><td>redundancy, code-distance</td><td style="text-align:right">no crypto timestamp available</td></tr>
+        <tr><td>bare claim</td><td>nothing (priority from commit onward)</td><td style="text-align:right">last resort</td></tr>
+      </tbody>
+    </table></div>
+
+    <p class="hint" style="margin-top:14px"><span class="cy">Pragma is additive, not a dependency.</span>
+      The incentive structure closes the airgap on its own; Pragma <i>raises the catch-probability</i>
+      (many independent observers) and hands the agent an external credential. Cryptographic (Noesis) and
+      redundancy-based (Pragma) integrity &mdash; same goal, two threat models. Nothing here holds a key.</p>
+
+    <p class="hint" style="margin-top:12px;border-left:2px solid var(--mag);padding-left:12px">
+      <b>the honest edge:</b> this holds against rational unilateral and cyclic lies. A <i>symmetric
+      collusion ring</i> &mdash; many observers agreeing on the same false timestamp &mdash; is the open
+      frontier (the same one panel 04 names). Pragma raises the cost of assembling that ring; it doesn't
+      yet make it impossible. We show the boundary.</p>
+
+    <p class="hint" style="margin-top:14px;color:var(--dim)">This is the airgap Noesis and VibeSwap are
+      built to close &mdash; on-chain trust made equal to off-chain trust by making dishonesty
+      unprofitable. It is the same property Tom's "trusted agent chain" is reaching for, seen from the
+      substrate side rather than the certifier side.</p>
   </div>
 
   <footer>
@@ -351,10 +406,10 @@ async function importURL(){
   try{
     let r;
     if(host==="github.com"||host==="api.github.com") r=await fetchGitHub(raw);
-    else if(host.endsWith("reddit.com")) r=await fetchReddit(raw);
-    else { el.innerHTML=`<span class="warn">${esc(host)} can't be fetched from the browser</span> `+
-      `<span class="dim">(GitHub and Reddit are wired; X and others require paid/auth APIs). `+
-      `Copy the post's text into the box above &mdash; the protocol scores the words, not the source.</span>`; return; }
+    else { el.innerHTML=`<span class="warn">${esc(host)} isn't auto-fetched</span> `+
+      `<span class="dim">&mdash; only GitHub exposes a keyless public API. For Reddit, X, Telegram, a blog: `+
+      `copy the text into the box above. The protocol only sees the words and who's attesting them; `+
+      `how they arrive is off-chain and swappable.</span>`; return; }
     if(!r.text){ el.innerHTML=`<span class="no">no text found at that URL.</span>`; return; }
     document.getElementById("work").value=r.text;
     const v=novelty(r.text,corpus);
@@ -391,12 +446,6 @@ async function fetchGitHub(u){
   if(res.status===404) throw new Error("not found (private or bad URL)");
   if(!res.ok) throw new Error("GitHub "+res.status);
   return pick(await res.json());
-}
-async function fetchReddit(u){
-  const res=await fetch("/api/reddit?url="+encodeURIComponent(u));
-  const j=await res.json().catch(()=>({error:"reddit proxy "+res.status}));
-  if(!res.ok||j.error) throw new Error(j.error||("reddit proxy "+res.status));
-  return {text:j.text||"", author:j.author||"", label:j.label||"reddit"};
 }
 
 // ===== Panel C =====
@@ -446,9 +495,26 @@ function updateFR(){
     `you (finder) earn <span class="big cy">${finder.toFixed(2)}</span> <span class="dim">(transferable — a ${(fr.rho*100).toFixed(0)}% cut of realized value, never any of the author's authority)</span>`;
 }
 
+// ===== Panel 06 — provenance (airgap -> honesty-load-bearing -> Pragma additive) =====
+const PROV={
+  bare:{p:0.5,label:"bare claim (paste)",note:"only the other guards (worthless fresh identity, no back-dating, clawback) deter the lie"},
+  crypto:{p:0.9,label:"cryptographic proof",note:"a signed commit / hash the submitter brings — keyless, self-verifying"},
+  pragma:{p:0.99,label:"Pragma observer-overlap",note:"many independent witnesses raise the odds of catching a lie"},
+};
+function setProv(k){
+  const g=1, b=2; // illustrative: over-claim gain vs bond + clawback
+  const {p,label,note}=PROV[k];
+  const ev=(1-p)*g - p*b;
+  document.getElementById("provout").innerHTML=
+    `<span class="tag yes">${label}</span> catch-probability p ≈ <span class="cy">${p.toFixed(2)}</span> · `+
+    `expected payoff of a false provenance claim = <span class="big ${ev<0?'ok':'no'}">${ev.toFixed(2)}</span> `+
+    `<span class="tag ${ev<0?'yes':'no'}">${ev<0?'LYING LOSES':'lying pays'}</span><br>`+
+    `<span class="dim">${note}. honesty stays the rational move at every rung — stronger proof only makes the lie lose harder (lower enforcement cost).</span>`;
+}
+
 // ===== section navigation =====
 function show(n){
-  for(let i=1;i<=5;i++) document.getElementById("sec"+i).classList.toggle("hidden", i!==n);
+  for(let i=1;i<=6;i++) document.getElementById("sec"+i).classList.toggle("hidden", i!==n);
   document.querySelectorAll(".navbtn").forEach((b,i)=>b.classList.toggle("active", i===n-1));
   if(location.hash!=="#"+n) history.replaceState(null,"","#"+n);
   window.scrollTo({top:0,behavior:"smooth"});
@@ -458,8 +524,9 @@ function show(n){
 renderRows(); updateA(); renderCorpus();
 renderIC(); updateIC();
 renderFR(); updateFR();
+setProv('bare');
 document.getElementById("work").addEventListener("input",updateB); updateB();
-{ const n=parseInt((location.hash||"").replace("#",""),10); if(n>=1&&n<=5) show(n); }
+{ const n=parseInt((location.hash||"").replace("#",""),10); if(n>=1&&n<=6) show(n); }
 </script>
 </body>
 </html>
