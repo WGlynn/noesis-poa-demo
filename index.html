@@ -93,12 +93,12 @@
   .mthresh{ position:absolute; top:-4px; bottom:-4px; width:2px; background:var(--amber); box-shadow:0 0 8px var(--amber); z-index:3; }
   .mthresh span{ position:absolute; top:-16px; left:50%; transform:translateX(-50%); font-size:9px; color:var(--amber); white-space:nowrap; }
   /* stacked step-ladder (provenance rungs) */
-  .ladder{ display:flex; align-items:flex-end; gap:8px; margin:14px 0 4px; height:120px; }
-  .rung{ flex:1; display:flex; flex-direction:column; justify-content:flex-end; align-items:center; gap:6px; }
+  .ladder{ display:flex; align-items:flex-end; gap:10px; margin:16px 0 4px; height:130px; }
+  .rung{ flex:1; height:100%; display:flex; flex-direction:column; justify-content:flex-end; align-items:center; }
+  .rlab{ font-size:10.5px; color:#eafcff; text-align:center; line-height:1.3; margin-bottom:7px; }
+  .rlab .dim{ font-size:8.5px; }
   .rbar{ width:100%; border-radius:8px 8px 0 0; border:1px solid var(--line); border-bottom:none;
-    background:linear-gradient(180deg,rgba(34,224,255,.14),rgba(34,224,255,.02)); box-shadow:0 0 16px rgba(34,224,255,.1) inset; }
-  .rung .rt{ font-size:10px; color:var(--dim); text-align:center; letter-spacing:.02em; }
-  .rung .rn{ font-size:11px; color:#eafcff; text-align:center; }
+    background:linear-gradient(180deg,rgba(34,224,255,.16),rgba(34,224,255,.02)); box-shadow:0 0 16px rgba(34,224,255,.1) inset; }
   /* animated flywheel */
   .spin{ transform-box:fill-box; transform-origin:center; animation:spin 9s linear infinite; }
   @keyframes spin{ to{ transform:rotate(360deg); } }
@@ -145,11 +145,10 @@
   <nav class="nav" id="nav">
     <button class="navbtn active" onclick="show(1)">01 · the floor</button>
     <button class="navbtn" onclick="show(2)">02 · novelty</button>
-    <button class="navbtn" onclick="show(3)">03 · soulbound</button>
-    <button class="navbtn" onclick="show(4)">04 · nash</button>
-    <button class="navbtn" onclick="show(5)">05 · finder's reward</button>
-    <button class="navbtn" onclick="show(6)">06 · provenance</button>
-    <button class="navbtn" onclick="show(7)">07 · the flywheel</button>
+    <button class="navbtn" onclick="show(3)">03 · nash</button>
+    <button class="navbtn" onclick="show(4)">04 · finder's reward</button>
+    <button class="navbtn" onclick="show(5)">05 · provenance</button>
+    <button class="navbtn" onclick="show(6)">06 · the flywheel</button>
   </nav>
 
   <div class="card" id="sec1">
@@ -166,6 +165,8 @@
       <span class="dim" style="font-size:11px">presets&nbsp;</span>
       <button class="btn" onclick="preset('whale')">whale alone</button>
       <button class="btn" onclick="preset('contrib')">contributors alone</button>
+      <button class="btn" onclick="preset('coopt1')">whale + 1 contributor</button>
+      <button class="btn" onclick="preset('coopt2')">whale + 2 contributors</button>
       <button class="btn" onclick="preset('all')">everyone</button>
       <button class="btn" onclick="preset('none')">clear</button>
     </div>
@@ -202,19 +203,12 @@
         <button class="btn" onclick="fillExample()">example: a real PR</button>
       </div>
     </div>
+    <div class="viz" id="vizB"></div>
     <div class="bar" id="verdictB"></div>
   </div>
 
   <div class="card hidden" id="sec3">
-    <div class="step">03 — soulbound</div>
-    <h2>Authority cannot be transferred</h2>
-    <p class="hint">Standing binds to the identity that earned it. Stake is transferable; authority is not.</p>
-    <button class="btn" onclick="tryBuy()">whale offers alice 1,000,000 for her standing</button>
-    <div class="bar" id="verdictC"><span class="dim">click above.</span></div>
-  </div>
-
-  <div class="card hidden" id="sec4">
-    <div class="step">04 — the nash equilibrium</div>
+    <div class="step">03 — the nash equilibrium</div>
     <h2>Lying doesn't pay: honesty is the best response</h2>
     <p class="hint">HL asked: what if I pretend to be someone, or lie about a contribution? Here is every
       move and what it earns. Payoff = allocation from the measure minus expected slash:
@@ -241,8 +235,8 @@
       bonded information-score backstop and the learned v(S) whose first real-data test came back null.</p>
   </div>
 
-  <div class="card hidden" id="sec5">
-    <div class="step">05 — the finder's reward</div>
+  <div class="card hidden" id="sec4">
+    <div class="step">04 — the finder's reward</div>
     <h2>Surface someone else's work, and get paid for it</h2>
     <p class="hint">You don't have to be the author to add value &mdash; <b>finding</b> and submitting real
       contributions is work too. So anyone can surface a contribution (paste a URL in panel 02), and the
@@ -263,7 +257,7 @@
       <span class="cy">one action, two outcomes</span> &mdash; claiming your own work and surfacing
       someone else's are the <b>same share</b>, the ordinary share button every app already has. The
       protocol tells them apart by whether your Noesis key is linked to the author's handle
-      (<a href="#6" onclick="show(6)">panel 06</a>): share your own &rarr; you're the author (soulbound
+      (<a href="#5" onclick="show(5)">panel 05</a>): share your own &rarr; you're the author (soulbound
       standing); share another's &rarr; you're the finder (a lottery ticket).
     </div>
     <div style="margin-top:12px">
@@ -274,6 +268,7 @@
     <div class="hint" style="margin-top:16px">how the finder is paid &mdash; a 24h value-pool lottery.
       move the sliders, or try to farm it with a duplicate:</div>
     <div id="fr"></div>
+    <div class="viz" id="vizFR"></div>
     <div class="bar" id="frout"></div>
 
     <p class="hint" style="margin-top:16px">Mechanism proposed by <b>Maarten G</b> (2026-07-01): let anyone
@@ -281,12 +276,12 @@
       action, and enter the sharers of original links into a lottery for a slice of the period's realized
       value. <span class="dim">Made safe here by three locks: the reward is transferable-only (never the
       author's soulbound authority); tickets require an <i>original</i> surface that clears the novelty
-      floor; and credit routes to the author through the social-account link (panel 06). Same fair
+      floor; and credit routes to the author through the social-account link (panel 05). Same fair
       expectation as a fixed cut, with a share-and-maybe-win UX.</span></p>
   </div>
 
-  <div class="card hidden" id="sec6">
-    <div class="step">06 — provenance</div>
+  <div class="card hidden" id="sec5">
+    <div class="step">05 — provenance</div>
     <h2>Provenance is an airgap problem &mdash; and honesty is what closes it</h2>
     <p class="hint">The chain can't see who made something, or when, out in the world. The tempting fix is
       to <i>reach across</i> the gap &mdash; fetch it from a GitHub or Reddit API and trust their word.
@@ -298,7 +293,7 @@
       (content hash + block height + identity). Claiming someone else's earlier work is a losing bet: a
       fresh identity is worth 0, priority can't be back-dated, and a false claim is a bonded self-report
       &mdash; caught, the bond is slashed and the over-claim clawed back. <span class="dim">(that's
-      panel 04, on the provenance axis.)</span>
+      panel 03, on the provenance axis.)</span>
     </div>
 
     <div class="hint" style="margin-top:16px">stronger proof doesn't <i>create</i> trust &mdash; it just
@@ -308,7 +303,14 @@
       <button class="btn" onclick="setProv('crypto')">cryptographic proof</button>
       <button class="btn" onclick="setProv('pragma')">Pragma observer-overlap</button>
     </div>
+    <div class="viz" id="vizP"></div>
     <div class="bar" id="provout"></div>
+
+    <div class="ladder">
+      <div class="rung"><div class="rlab">bare claim<br><span class="dim">priority from commit on</span></div><div class="rbar" style="height:26%;border-top:2px solid var(--dim)"></div></div>
+      <div class="rung"><div class="rlab">Pragma overlap<br><span class="dim">redundancy / code-distance</span></div><div class="rbar" style="height:62%;border-top:2px solid var(--cyan)"></div></div>
+      <div class="rung"><div class="rlab">crypto commit<br><span class="dim">collision resistance</span></div><div class="rbar" style="height:96%;border-top:2px solid var(--grn)"></div></div>
+    </div>
 
     <div class="tscroll" style="margin-top:16px"><table>
       <thead><tr><th>rung</th><th>un-forgeable by</th><th>when it applies</th></tr></thead>
@@ -325,7 +327,7 @@
       <p class="hint">This runs actual ECDSA in your browser. Generate a Noesis identity, bind a social
         handle to it, and verify the proof &mdash; the way an author self-attests authorship without anyone
         trusting a platform's API or holding a key. This is how a surfaced contribution's standing routes
-        to its real author (panel 05).</p>
+        to its real author (panel 04).</p>
       <div style="margin-top:10px;display:flex;gap:8px;flex-wrap:wrap;align-items:center">
         <input type="text" id="handle" placeholder="@your-handle" autocomplete="off" style="max-width:220px" />
         <button class="btn" onclick="genIdentity()">generate identity</button>
@@ -343,7 +345,7 @@
     <p class="hint" style="margin-top:12px;border-left:2px solid var(--mag);padding-left:12px">
       <b>the honest edge:</b> this holds against rational unilateral and cyclic lies. A <i>symmetric
       collusion ring</i> &mdash; many observers agreeing on the same false timestamp &mdash; is the open
-      frontier (the same one panel 04 names). Pragma raises the cost of assembling that ring; it doesn't
+      frontier (the same one panel 03 names). Pragma raises the cost of assembling that ring; it doesn't
       yet make it impossible. We show the boundary.</p>
 
     <p class="hint" style="margin-top:14px;color:var(--dim)">This is the airgap Noesis and VibeSwap are
@@ -352,8 +354,8 @@
       substrate side rather than the certifier side.</p>
   </div>
 
-  <div class="card hidden" id="sec7">
-    <div class="step">07 — the flywheel</div>
+  <div class="card hidden" id="sec6">
+    <div class="step">06 — the flywheel</div>
     <h2>The finder's reward is a flywheel that retires itself</h2>
     <p class="hint">Paying finders a cut doesn't dilute creators &mdash; priced by <b>marginal contribution</b>
       (Shapley), over-payment is impossible. Instead it populates the chain from both sides, then fades as
@@ -430,11 +432,7 @@
   </div>
 
   <footer>
-    Real, compiled to wasm from the Noesis node: the anti-concentration finality (panel 01). Faithful
-    port pending its own wasm export: novelty (panel 02). Shown openly and <b>not</b> solved: a semantic
-    paraphrase slips past the byte-level proxy &mdash; that is the learned value function we are raising to
-    build, whose first real-data test came back null (unsupported, not refuted). We show the boundary
-    rather than hide it. &nbsp;·&nbsp; view-source, and <code>poa_demo.py</code>, are the audit.
+    <a href="https://github.com/WGlynn/noesis-poa-demo">source</a> is the audit &nbsp;·&nbsp; view-source and <code>poa_demo.py</code>.
   </footer>
 </div>
 
@@ -475,8 +473,13 @@ function renderRows(){
     </tr>`).join("");
 }
 function setV(i,k,v){ actors[i][k]=(k==="sign")?v:Math.max(0,parseFloat(v)||0); updateA(); }
-function preset(k){ actors.forEach(a=>a.sign = k==="all"?true : k==="none"?false : k==="whale"?a.name==="whale" : a.name!=="whale");
-  renderRows(); updateA(); }
+function preset(k){
+  const sets={ whale:["whale"], contrib:["alice","bob","carol"], all:["alice","bob","carol","whale"],
+    none:[], coopt1:["whale","alice"], coopt2:["whale","alice","bob"] };
+  const on=sets[k]||[];
+  actors.forEach(a=>a.sign=on.includes(a.name));
+  renderRows(); updateA();
+}
 function realVerdict(){
   if(!W) return null;
   const mask = actors.reduce((m,a,i)=>m|(a.sign?(1<<i):0),0);
@@ -510,10 +513,15 @@ let corpus=[
   "a commit-reveal batch auction that clears at a uniform price",
 ];
 function renderCorpus(){ document.getElementById("corpus").innerHTML=corpus.map(c=>`<li>${c}</li>`).join(""); }
+function noveltyViz(v){
+  const el=document.getElementById("vizB"); if(!el) return;
+  const cls=v===0?"no":v<0.4?"warn":"ok";
+  el.innerHTML=meterBar("novelty score vs the record",v,cls,0.4);
+}
 function updateB(){
   const w=document.getElementById("work").value.trim(), el=document.getElementById("verdictB");
-  if(!w){ el.innerHTML=`<span class="dim">type something above.</span>`; return; }
-  const v=novelty(w,corpus);
+  if(!w){ el.innerHTML=`<span class="dim">type something above.</span>`; document.getElementById("vizB").innerHTML=""; return; }
+  const v=novelty(w,corpus); noveltyViz(v);
   if(v===0) el.innerHTML=`earns <span class="big no">0 standing</span> &mdash; an exact copy or near-duplicate. You cannot bank value by re-submitting.`;
   else if(v<0.4) el.innerHTML=`earns <span class="big warn">${v} standing</span> &mdash; a semantic reword. A byte-level proxy misses this. <span class="dim">the honest open frontier (learned value function, first test null).</span>`;
   else el.innerHTML=`earns <span class="big ok">${v} standing</span> &mdash; genuinely novel against the record.`;
@@ -526,7 +534,7 @@ function fillCopy(){ document.getElementById("work").value=corpus[0]; updateB();
 function fillParaphrase(){
   const p="a mechanism that scores each contributor by the real value that flows downstream from their work";
   document.getElementById("work").value=p;
-  const v=novelty(p,corpus);
+  const v=novelty(p,corpus); noveltyViz(v);
   document.getElementById("verdictB").innerHTML=
     `a semantic <b>reword of the first entry</b>. the byte-level proxy scored it <span class="big warn">${v}</span> &mdash; `+
     `it cannot tell it is the same idea, so a paraphrase slips through. <span class="dim">THIS is the honest open frontier: `+
@@ -553,7 +561,7 @@ async function importURL(){
       `how they arrive is off-chain and swappable.</span>`; return; }
     if(!r.text){ el.innerHTML=`<span class="no">no text found at that URL.</span>`; return; }
     document.getElementById("work").value=r.text;
-    const v=novelty(r.text,corpus);
+    const v=novelty(r.text,corpus); noveltyViz(v);
     const score = v===0 ? `<span class="big no">0 standing</span> &mdash; duplicate of the existing record`
       : v<0.4 ? `<span class="big warn">${v} standing</span> &mdash; low novelty vs the record`
       : `<span class="big ok">${v} standing</span> &mdash; novel against the record`;
@@ -588,10 +596,6 @@ async function fetchGitHub(u){
   if(!res.ok) throw new Error("GitHub "+res.status);
   return pick(await res.json());
 }
-
-// ===== Panel C =====
-function tryBuy(){ document.getElementById("verdictC").innerHTML=
-  `<span class="tag no">REFUSED</span> Standing is soulbound &mdash; there is no transfer function. Capital buys nothing.`; }
 
 // ===== Panel 04 — the Nash equilibrium (honest self-report IC) =====
 let ic={g:1.0,b:1.0,p:0.9};
@@ -630,9 +634,10 @@ function setFR(k,v){ fr[k]=(k==="dup")?v:parseFloat(v);
   if(el) el.textContent=(k==="pool")?(fr.pool*100).toFixed(0)+"%":fr.v.toFixed(1);
   updateFR(); }
 function updateFR(){
-  const el=document.getElementById("frout");
-  if(fr.dup){ el.innerHTML=`<span class="tag no">0 tickets</span> a duplicate isn't an <i>original</i> surface — only the first to bring a piece in gets tickets, and it must clear the novelty floor. <span class="dim">re-sharing a viral link earns nothing. no farming.</span>`; return; }
+  const el=document.getElementById("frout"), vz=document.getElementById("vizFR");
+  if(fr.dup){ if(vz) vz.innerHTML=meterBar("your expected finder reward",0,"no"); el.innerHTML=`<span class="tag no">0 tickets</span> a duplicate isn't an <i>original</i> surface — only the first to bring a piece in gets tickets, and it must clear the novelty floor. <span class="dim">re-sharing a viral link earns nothing. no farming.</span>`; return; }
   const expected=fr.pool*fr.v;
+  if(vz) vz.innerHTML=meterBar("your expected finder reward  (π·v)",Math.min(1,expected/2),"cy");
   el.innerHTML=
     `you enter the <b>24h value lottery</b> with tickets ∝ the value you surfaced.<br>`+
     `expected reward = π·v = <span class="big cy">${expected.toFixed(2)}</span> `+
@@ -647,7 +652,7 @@ function drawFR(){
     : `<span class="tag zero">no win this window</span> <span class="dim">tickets ∝ surfaced value; over many windows your average tends to π·v = ${ev}. surface more real work → more tickets.</span>`;
 }
 function shareNoesis(){
-  const url="https://noesis-poa-demo.vercel.app/#5", out=document.getElementById("shareout");
+  const url="https://noesis-poa-demo.vercel.app/#4", out=document.getElementById("shareout");
   const data={title:"Noesis — Proof of Authority you can't buy",text:"Share a real contribution; the protocol prices it. The author earns soulbound standing, you get a shot at the finder pool.",url};
   if(navigator.share){ navigator.share(data).then(()=>{ if(out) out.textContent="shared."; }).catch(()=>{}); }
   else if(navigator.clipboard){ navigator.clipboard.writeText(url).then(()=>{ if(out) out.textContent="link copied — paste it anywhere (no native share sheet here)."; }); }
@@ -664,6 +669,8 @@ function setProv(k){
   const g=1, b=2; // illustrative: over-claim gain vs bond + clawback
   const {p,label,note}=PROV[k];
   const ev=(1-p)*g - p*b;
+  const vz=document.getElementById("vizP");
+  if(vz) vz.innerHTML=meterBar("catch-probability p",p,"cy")+meterBar("loss on a false claim",Math.min(1,-ev/2),"no");
   document.getElementById("provout").innerHTML=
     `<span class="tag yes">${label}</span> catch-probability p ≈ <span class="cy">${p.toFixed(2)}</span> · `+
     `expected payoff of a false provenance claim = <span class="big ${ev<0?'ok':'no'}">${ev.toFixed(2)}</span> `+
@@ -744,7 +751,7 @@ function updateFly(){
 
 // ===== section navigation =====
 function show(n){
-  for(let i=1;i<=7;i++) document.getElementById("sec"+i).classList.toggle("hidden", i!==n);
+  for(let i=1;i<=6;i++) document.getElementById("sec"+i).classList.toggle("hidden", i!==n);
   document.querySelectorAll(".navbtn").forEach((b,i)=>b.classList.toggle("active", i===n-1));
   if(location.hash!=="#"+n) history.replaceState(null,"","#"+n);
   window.scrollTo({top:0,behavior:"smooth"});
@@ -757,7 +764,7 @@ renderFR(); updateFR();
 setProv('bare');
 initTaper(); updateFly();
 document.getElementById("work").addEventListener("input",updateB); updateB();
-{ const n=parseInt((location.hash||"").replace("#",""),10); if(n>=1&&n<=7) show(n); }
+{ const n=parseInt((location.hash||"").replace("#",""),10); if(n>=1&&n<=6) show(n); }
 </script>
 </body>
 </html>
