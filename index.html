@@ -273,10 +273,10 @@
     <div id="ic"></div>
     <div class="bar" id="icout"></div>
 
-    <p class="hint" style="margin-top:14px">Honest scope: demonstrated for unilateral lies and cyclic collusion
+    <details class="more"><summary>scope</summary><div class="body"><p class="hint" style="margin:0">Honest scope: demonstrated for unilateral lies and cyclic collusion
       (tested, <code>nash_honesty</code>). The symmetric-lie collusion ring (everyone agrees on the same lie)
       and adaptive / Goodhart-robustness (the learned value measure) are the openly-named frontier — the
-      bonded information-score backstop and the learned v(S) whose first real-data test came back null.</p>
+      bonded information-score backstop and the learned v(S) whose first real-data test came back null.</p></div></details>
   </div>
 
   <div class="card hidden" id="sec4">
@@ -290,9 +290,9 @@
         <tr><td><b>you</b>, the finder</td><td>a cut of that realized value</td><td style="text-align:right"><span class="tag" style="color:var(--cyan);border:1px solid rgba(34,224,255,.5);background:rgba(34,224,255,.06)">TRANSFERABLE</span></td></tr>
       </tbody>
     </table></div>
-    <p class="hint" style="margin-top:14px">Separate axes is the trick: the finder is paid in the fungible
+    <details class="more"><summary>why it's safe</summary><div class="body"><p class="hint" style="margin:0">Separate axes is the trick: the finder is paid in the fungible
       layer, never the author's soulbound authority &mdash; so surfacing can't <i>buy</i> franchise. And no
-      reward unless the work clears the novelty floor, so farming duplicates earns <b>0</b>.</p>
+      reward unless the work clears the novelty floor, so farming duplicates earns <b>0</b>.</p></div></details>
 
     <div class="bar" style="margin-top:16px">
       <span class="cy">one action, two outcomes</span> &mdash; claiming your own work and surfacing
@@ -312,13 +312,13 @@
     <div class="viz" id="vizFR"></div>
     <div class="bar" id="frout"></div>
 
-    <p class="hint" style="margin-top:16px">Mechanism proposed by <b>Maarten G</b> (2026-07-01): let anyone
+    <details class="more"><summary>the mechanism &amp; credit</summary><div class="body"><p class="hint" style="margin:0">Mechanism proposed by <b>Maarten G</b> (2026-07-01): let anyone
       <i>share</i> a contribution &mdash; even one that isn't theirs &mdash; through the ordinary share
       action, and enter the sharers of original links into a lottery for a slice of the period's realized
       value. <span class="dim">Made safe here by three locks: the reward is transferable-only (never the
       author's soulbound authority); tickets require an <i>original</i> surface that clears the novelty
       floor; and credit routes to the author through the social-account link (panel 05). Same fair
-      expectation as a fixed cut, with a share-and-maybe-win UX.</span></p>
+      expectation as a fixed cut, with a share-and-maybe-win UX.</span></p></div></details>
   </div>
 
   <div class="card hidden" id="sec5">
@@ -362,10 +362,10 @@
     <div style="margin-top:18px;border-top:1px solid var(--line);padding-top:16px">
       <div class="step" style="letter-spacing:.2em">the cryptographic rung, made real</div>
       <h2 style="font-size:15px;margin:6px 0 4px">Link a handle to a key &mdash; no platform API, real signatures</h2>
-      <p class="hint">This runs actual ECDSA in your browser. Generate a Noesis identity, bind a social
+      <details class="more"><summary>about this widget</summary><div class="body"><p class="hint" style="margin:0">This runs actual ECDSA in your browser. Generate a Noesis identity, bind a social
         handle to it, and verify the proof &mdash; the way an author self-attests authorship without anyone
         trusting a platform's API or holding a key. This is how a surfaced contribution's standing routes
-        to its real author (panel 04).</p>
+        to its real author (panel 04).</p></div></details>
       <div style="margin-top:10px;display:flex;gap:8px;flex-wrap:wrap;align-items:center">
         <input type="text" id="handle" placeholder="@your-handle" autocomplete="off" style="max-width:220px" />
         <button class="btn" onclick="genIdentity()">generate identity</button>
@@ -375,20 +375,19 @@
       <div class="bar" id="linkout"><span class="dim">generate an identity to begin.</span></div>
     </div>
 
-    <p class="hint" style="margin-top:14px"><span class="cy">Pragma is additive, not a dependency.</span>
+    <details class="more"><summary>where Pragma fits</summary><div class="body"><p class="hint" style="margin:0"><span class="cy">Pragma is additive, not a dependency.</span>
       The incentive structure closes the airgap on its own; Pragma <i>raises the catch-probability</i>
       (many independent observers) and hands the agent an external credential. Cryptographic (Noesis) and
-      redundancy-based (Pragma) integrity &mdash; same goal, two threat models. Nothing here holds a key.</p>
+      redundancy-based (Pragma) integrity &mdash; same goal, two threat models. Nothing here holds a key.</p></div></details>
 
-    <p class="hint" style="margin-top:12px;border-left:2px solid var(--cyan);padding-left:12px">
-      <b>redundancy vs. structure:</b> a pure overlap scheme can be forged by a large enough ring of
+    <details class="more"><summary>how far it closes</summary><div class="body"><p class="hint" style="margin:0"><b>redundancy vs. structure:</b> a pure overlap scheme can be forged by a large enough ring of
       agreeing observers &mdash; that is the ceiling of redundancy alone. Noesis closes it structurally:
       a false timestamp cannot <i>finalize</i> without clearing the anti-concentration floor, so forging
       provenance would require a majority of <b>earned, soulbound contribution</b> &mdash; which capital
       cannot buy. What remains is only the irreducible Nakamoto bound &mdash; the genuine
       contributor-majority itself defecting &mdash; at which point "collusion" and "the legitimate
       authority deciding" are the same event. The still-open research frontier is elsewhere: the learned
-      value function <code>v(S)</code> (the case panel 03 names), whose first real-data test came back null.</p>
+      value function <code>v(S)</code> (the case panel 03 names), whose first real-data test came back null.</p></div></details>
   </div>
 
   <div class="card hidden" id="sec6">
@@ -458,11 +457,11 @@
     </svg>
     <div class="bar" id="flyout"></div>
 
-    <p class="hint" style="margin-top:14px">Shapley schedules its own retirement: as creators publish first,
+    <details class="more"><summary>the economics</summary><div class="body"><p class="hint" style="margin:0">Shapley schedules its own retirement: as creators publish first,
       a finder's marginal contribution falls, so the cut falls &mdash; no governance dial. Cold-start
       liquidity for the contribution economy, self-tapering instead of a permanent emission. The protocol
       can run its own finder and route that cut to <b>protocol-owned liquidity</b> or <b>public goods</b>.
-      <span class="dim">(economics developed with Maarten G, 2026-07-01.)</span></p>
+      <span class="dim">(economics developed with Maarten G, 2026-07-01.)</span></p></div></details>
   </div>
 
   </div><!--/app-->
