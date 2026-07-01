@@ -26,10 +26,22 @@
 >   webassembly" tag, the public **"Tom"** partner name (don't name partners on a public page).
 > - Panels renumbered 1–6 (01 floor · 02 novelty · 03 nash · 04 finder's reward · 05 provenance · 06 flywheel).
 >
-> ▶▶ **NEXT: PROTOTYPE v3 — browser testnet** (Will chose option 1). Full spec written:
-> `PROTOTYPE-SPEC-V3.md` (real keypairs → real commit-reveal hash-chained blocks → soulbound standing +
-> transferable finder tokens with signed transfers → explorer, all in-browser, localStorage-persisted,
-> single-node honest boundary). Say "go" to build.
+> ✅ **PROTOTYPE v3 SHIPPED — browser testnet (panel 07).** Real ECDSA identity (localStorage-persisted),
+> SHA-256 hash-chained blocks, commit-reveal (`commit=hash(content|secret|author)`), novelty-gated
+> minting, soulbound standing vs transferable finder tokens (real ECDSA-signed + verified transfers),
+> "try to sell standing" → REFUSED, live explorer + reset. Single-node honest boundary stated. Spec:
+> `PROTOTYPE-SPEC-V3.md`. ⚠ NEEDS a human **browser click-test** — crypto/localStorage paths built +
+> syntax-verified but not exercised in a real browser from here (mine a block, do a transfer).
+>
+> ▶▶ **NEXT (fresh session recommended): ZK into NOESIS CORE (private repo, not the demo).** Will
+> 2026-07-01: "all 4 ZK ideas are good, build them into core." Grounded design doc written:
+> `~/noesis/docs/ZK-INTEGRATION.md`. Headline holds under grounding: `noesis-core` is `no_std` + builds
+> `riscv64imac` (`onchain/noesis-core/src/lib.rs:1-14`), so a RISC-V zkVM (RISC Zero / SP1) proves the
+> exact functions already run (`finalizes_pos_pom_fixed`:481, `coverage`:88, `semantic_floor_q16`:67) —
+> no circuit rewrite. Build order: (1) RISC Zero PoC proving `finalizes_pos_pom_fixed` ← START HERE,
+> (2) private-input scoring proof (zkML), (3) Noir Merkle non-membership novelty, (4) account-link
+> selective disclosure. All 🟡 designed / 🔬 unbuilt. Recommended as its own focused session (real
+> Rust zkVM + Noir work; deferred out of this ~573k-context session).
 >
 > ▶ **Attack/defense (partner material):** `~/noesis/docs/ATTACK-DEFENSE.md` (PRIVATE repo) — Will
 > stress-tested the design 4 ways this session (key-sale, reuse-inflation, incumbency, "are we sure about
