@@ -1,0 +1,19 @@
+[package]
+name = "noesis-poa-wasm"
+version = "0.0.1"
+edition = "2021"
+
+# Thin wasm wrapper: exposes the REAL noesis-core anti-concentration finality
+# (finalizes_pos_pom_fixed) to the browser demo. Same arithmetic the on-VM
+# finalization type-script calls. Compile: cargo build --target wasm32-unknown-unknown --release
+
+[lib]
+crate-type = ["cdylib"]
+
+[dependencies]
+noesis-core = { path = "../../noesis/onchain/noesis-core" }
+
+[profile.release]
+opt-level = "s"
+lto = true
+panic = "abort"

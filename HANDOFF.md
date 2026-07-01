@@ -1,5 +1,8 @@
 # HANDOFF — Noesis "Proof of Authority you can't buy" demo (2026-07-01)
 
+> ▶ **NEXT BUILD (Will-decided 2026-07-01): Graduation 1 = WASM the real Noesis core into the browser
+> behind this UI.** Full blueprint: `PROTOTYPE-SPEC.md` (this folder). Start it in a FRESH session.
+
 ## Why this exists (the strategic context)
 Live Pragma/OPH conversation (TG), 2026-07-01. Bernhard called Noesis "too complex" — an
 invitation to improve, not a rejection. Then it escalated into an opportunity:
@@ -51,6 +54,10 @@ the demo; learned v(S) = the funded research bet. Under-claim, over-deliver (aud
 4. Friend's PoM/impersonation question answered -> Gmail draft `r2062801939364981661` (re-address before send).
 5. Demo-link share email -> Gmail draft `r6563721717327864407` ("running prototype not a slide"; re-address before send).
 6. Deployed LIVE + public (200, no auth wall): https://noesis-poa-demo.vercel.app (Vercel, tiptaptangsun-8775 acct). Fable 5 NOT available for this account yet (checked 2026-07-01).
+7. DEMO IS NOW INTERACTIVE (Will: "static doesn't show what happens when variables change"): edit stake/standing + toggle signers -> live finalize verdict; type-your-own novelty box (paste=0, reword=frontier); soulbound "try to buy"=REFUSED. Logic Node-parity-verified vs poa_demo.py.
+8. Design polished testdriver-grade (Will shared testdriver.ai, wanted "both" tool+look): gradient hero, NOESIS wordmark, step-labels, dark kept (stronger for Pragma vs their light-SaaS). NOTE: built from testdriver's TEXT description, not pixels -> Will may want lighter/closer, iterate.
+9. Mobile fix: "Signs?" column overflow -> table scroll-wrap + max-width:560px breakpoint (shrunk inputs, trimmed headers).
+10. **GitHub repo now PUBLIC: https://github.com/WGlynn/noesis-poa-demo** (git identity WGlynn/noreply, NO Claude trailer). For **TestDriver.ai** (AI UI-testing GitHub App Will wants on the demo): Will installs @testdriverai app + mentions @testdriverai in repo -> writes UI tests. Will-gated (account/install). Then Jarvis helps write test prompts.
 
 ## Anti-hallucination note
 Noesis numbers were read from `~/noesis/ARCHITECTURE.md` + `docs/WHITEPAPER.md` §9 this session, not
