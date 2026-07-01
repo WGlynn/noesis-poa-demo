@@ -1,7 +1,21 @@
 # HANDOFF — Noesis "Proof of Authority you can't buy" demo (2026-07-01)
 
-> ▶ **NEXT BUILD (Will-decided 2026-07-01): Graduation 1 = WASM the real Noesis core into the browser
-> behind this UI.** Full blueprint: `PROTOTYPE-SPEC.md` (this folder). Start it in a FRESH session.
+> ✅ **GRADUATION 1 DONE (2026-07-01): the real Noesis core runs in the browser.** The finalize verdict
+> now comes from `noesis-core::finalizes_pos_pom_fixed` compiled to wasm32 (`wasm/` crate → `noesis_poa.wasm`,
+> 5KB), wired into `index.html`, Node-parity-verified (whale-alone REJECTED, everyone FINALIZES). Full neon
+> restyle (sleek retro-futurist). LIVE + verified: page 200, wasm served `application/wasm` 200. Repo public
+> `WGlynn/noesis-poa-demo` (wasm/target gitignored). Novelty still a faithful JS port (labeled); learned v(S)
+> still the openly-shown frontier.
+>
+> ▶ **NEXT (open):** (a) install @testdriverai on the repo → end-to-end verify the in-browser render+clicks
+> (only thing not self-verified). (b) OPTIONAL: export the real novelty (`coverage`/`semantic_floor_q16` from
+> noesis-core) to wasm too — needs string-marshaling across the boundary (alloc + memory export), left for a
+> fresh session. (c) GRADUATION 2 (the funded research bet): learned v(S) beats a fixed proxy on real labels
+> (first test null). (d) share the prototype with Pragma.
+>
+> BUILD NOTES: wasm crate is `no_std` cdylib, bump allocator + panic handler, flat C-ABI (`floor_finalizes`,
+> f64 args + u32 mask/threshold, no wasm-bindgen). Toolchain: rustup + `wasm32-unknown-unknown` target
+> installed this session; `cargo build --target wasm32-unknown-unknown --release`.
 
 ## Why this exists (the strategic context)
 Live Pragma/OPH conversation (TG), 2026-07-01. Bernhard called Noesis "too complex" — an

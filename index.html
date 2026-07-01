@@ -71,6 +71,8 @@
   .tag{ display:inline-block; font-weight:700; font-size:11.5px; letter-spacing:.1em; padding:3px 11px; border-radius:999px; margin-right:8px; }
   .tag.yes{ color:var(--grn); border:1px solid rgba(59,255,171,.5); background:rgba(59,255,171,.06); text-shadow:0 0 10px rgba(59,255,171,.5); box-shadow:0 0 16px rgba(59,255,171,.14); }
   .tag.no{ color:var(--mag); border:1px solid rgba(255,61,182,.5); background:rgba(255,61,182,.06); text-shadow:0 0 10px rgba(255,61,182,.5); box-shadow:0 0 16px rgba(255,61,182,.12); }
+  .tag.zero{ color:var(--dim); border:1px solid var(--line); background:transparent; }
+  input[type=range]{ accent-color:var(--cyan); width:100%; height:3px; }
   .ok{ color:var(--grn); } .no{ color:var(--mag); } .warn{ color:var(--amber); } .cy{ color:var(--cyan); } .dim{ color:var(--dim); }
   .big{ font-size:14px; font-weight:700; }
   .corpus{ font-size:12px; color:var(--dim); margin:8px 0 0; padding-left:18px; }
@@ -143,6 +145,34 @@
     <p class="hint">Standing binds to the identity that earned it. Stake is transferable; authority is not.</p>
     <button class="btn" onclick="tryBuy()">whale offers alice 1,000,000 for her standing</button>
     <div class="bar" id="verdictC"><span class="dim">click above.</span></div>
+  </div>
+
+  <div class="card">
+    <div class="step">04 — the nash equilibrium</div>
+    <h2>Lying doesn't pay: honesty is the best response</h2>
+    <p class="hint">HL asked: what if I pretend to be someone, or lie about a contribution? Here is every
+      move and what it earns. Payoff = allocation from the measure minus expected slash:
+      <span class="cy">u = φ(v) − ℓ</span>.</p>
+    <div class="tscroll"><table>
+      <thead><tr><th>your move</th><th>what the protocol does</th><th>payoff</th></tr></thead>
+      <tbody>
+        <tr><td>contribute honestly</td><td>scored by realized downstream value, earn standing</td><td style="text-align:right"><span class="tag yes">EARN</span></td></tr>
+        <tr><td>pretend to be someone ("I'm Vitalik")</td><td>a fresh identity has no history, can't inherit or back-date priority, worth 0</td><td style="text-align:right"><span class="tag zero">0</span></td></tr>
+        <tr><td>claim work that isn't yours / lie about it</td><td>bonded self-report; caught with prob p, bond slashed + over-claim clawed back</td><td style="text-align:right"><span class="tag no">LOSE</span></td></tr>
+        <tr><td>pad / paraphrase / copy</td><td>temporal novelty of duplicate work, 0</td><td style="text-align:right"><span class="tag zero">0</span></td></tr>
+        <tr><td>sybil-split into K identities</td><td>standing-gated, pay the identity cost K times for no franchise gain</td><td style="text-align:right"><span class="tag zero">≤ 0</span></td></tr>
+      </tbody>
+    </table></div>
+    <div class="bar" style="margin-top:14px"><span class="cy">→</span> only honesty has a positive payoff, so honest contribution is the unique best response. <b>That is the Nash equilibrium.</b></div>
+
+    <div class="hint" style="margin-top:18px">try to make lying pay — the expected payoff of a lie is <span class="cy">(1−p)·g − p·b</span>:</div>
+    <div id="ic"></div>
+    <div class="bar" id="icout"></div>
+
+    <p class="hint" style="margin-top:14px">Honest scope: demonstrated for unilateral lies and cyclic collusion
+      (tested, <code>nash_honesty</code>). The symmetric-lie collusion ring (everyone agrees on the same lie)
+      and adaptive / Goodhart-robustness (the learned value measure) are the openly-named frontier — the
+      bonded information-score backstop and the learned v(S) whose first real-data test came back null.</p>
   </div>
 
   <footer>
@@ -251,8 +281,27 @@ function fillParaphrase(){
 function tryBuy(){ document.getElementById("verdictC").innerHTML=
   `<span class="tag no">REFUSED</span> Standing is soulbound &mdash; there is no transfer function. Capital buys nothing.`; }
 
+// ===== Panel 04 — the Nash equilibrium (honest self-report IC) =====
+let ic={g:1.0,b:1.0,p:0.9};
+function renderIC(){
+  document.getElementById("ic").innerHTML=`
+    <div style="display:grid;grid-template-columns:auto 1fr auto;gap:9px 12px;align-items:center;font-size:12.5px;margin-top:8px">
+      <span class="dim">over-claim gain&nbsp;g</span><input type="range" min="0" max="5" step="0.1" value="${ic.g}" oninput="setIC('g',this.value)"><span class="cy" id="icg">${ic.g.toFixed(1)}</span>
+      <span class="dim">bond&nbsp;b</span><input type="range" min="0" max="5" step="0.1" value="${ic.b}" oninput="setIC('b',this.value)"><span class="cy" id="icb">${ic.b.toFixed(1)}</span>
+      <span class="dim">catch-probability&nbsp;p</span><input type="range" min="0" max="1" step="0.01" value="${ic.p}" oninput="setIC('p',this.value)"><span class="cy" id="icp">${ic.p.toFixed(2)}</span>
+    </div>`;
+}
+function setIC(k,v){ ic[k]=parseFloat(v);
+  document.getElementById("ic"+k).textContent=(k==="p"?ic[k].toFixed(2):ic[k].toFixed(1)); updateIC(); }
+function updateIC(){
+  const ev=(1-ic.p)*ic.g - ic.p*ic.b, el=document.getElementById("icout");
+  if(ev<0) el.innerHTML=`expected payoff of lying = <span class="big ok">${ev.toFixed(2)}</span> · <span class="tag yes">LYING LOSES</span> honesty is the equilibrium.`;
+  else el.innerHTML=`expected payoff of lying = <span class="big no">${ev.toFixed(2)}</span> · <span class="tag no">lying would pay</span> <span class="dim">— which is exactly what a high catch-probability p (peer-prediction) and a real bond b are there to prevent.</span>`;
+}
+
 // init
 renderRows(); updateA(); renderCorpus();
+renderIC(); updateIC();
 document.getElementById("work").addEventListener("input",updateB); updateB();
 </script>
 </body>
