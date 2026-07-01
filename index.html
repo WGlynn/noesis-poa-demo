@@ -114,6 +114,14 @@
   .tag.yes{ color:var(--grn); border:1px solid rgba(59,255,171,.5); background:rgba(59,255,171,.06); text-shadow:0 0 10px rgba(59,255,171,.5); box-shadow:0 0 16px rgba(59,255,171,.14); }
   .tag.no{ color:var(--mag); border:1px solid rgba(255,61,182,.5); background:rgba(255,61,182,.06); text-shadow:0 0 10px rgba(255,61,182,.5); box-shadow:0 0 16px rgba(255,61,182,.12); }
   .tag.zero{ color:var(--dim); border:1px solid var(--line); background:transparent; }
+  /* testnet */
+  .tnrow{ display:grid; grid-template-columns:1fr 1fr; gap:16px; margin-top:14px; }
+  .tncol{ background:#05090f; border:1px solid var(--line); border-radius:11px; padding:14px; }
+  .tnblock{ font-size:11.5px; border:1px solid var(--line); border-radius:9px; padding:9px 11px; margin:7px 0; background:#05090f; }
+  .tnblock .h{ color:var(--cyan); }
+  .tnkv{ display:flex; justify-content:space-between; gap:10px; font-size:12px; padding:3px 0; border-bottom:1px solid rgba(22,52,74,.4); }
+  .tnsub{ font-size:10.5px; color:var(--dim); letter-spacing:.06em; text-transform:uppercase; margin:12px 0 4px; }
+  @media(max-width:560px){ .tnrow{ grid-template-columns:1fr; } }
   input[type=range]{ accent-color:var(--cyan); width:100%; height:3px; display:block; }
   .ctl{ margin:13px 0; }
   .ctlrow{ display:flex; justify-content:space-between; align-items:baseline; gap:12px; font-size:12.5px; color:var(--dim); margin-bottom:8px; }
@@ -192,6 +200,7 @@
     <button class="navbtn" onclick="show(4)">04 · finder's reward</button>
     <button class="navbtn" onclick="show(5)">05 · provenance</button>
     <button class="navbtn" onclick="show(6)">06 · the flywheel</button>
+    <button class="navbtn" onclick="show(7)">07 · testnet</button>
   </nav>
 
   <div class="card" id="sec1">
@@ -458,6 +467,58 @@
       liquidity for the contribution economy, self-tapering instead of a permanent emission. The protocol
       can run its own finder and route that cut to <b>protocol-owned liquidity</b> or <b>public goods</b>.
       <span class="dim">(economics developed with Maarten G, 2026-07-01.)</span></p></div></details>
+  </div>
+
+  <div class="card hidden" id="sec7">
+    <div class="step">07 — testnet</div>
+    <h2>A real ledger, in your browser</h2>
+    <p class="hint">Not a mock. Real ECDSA keys, real SHA-256 hash-chained blocks, soulbound standing
+      and transferable finder tokens with signed transfers. State persists locally. Everything below is
+      computed with Web Crypto and verifiable in view-source.</p>
+
+    <div class="bar" id="tnId"><span class="dim">initializing your identity…</span></div>
+
+    <div class="tnrow">
+      <div class="tncol">
+        <div class="step" style="letter-spacing:.2em">submit a contribution</div>
+        <p class="hint" style="margin:6px 0 8px">Commit → reveal → mined into a block. You earn
+          <b>soulbound</b> standing, scored by novelty against the testnet's record.</p>
+        <input type="text" id="tnWork" placeholder="type a contribution…" autocomplete="off" />
+        <div style="margin-top:8px"><button class="btn" onclick="tnSubmit(false)">commit &amp; mine</button></div>
+      </div>
+      <div class="tncol">
+        <div class="step" style="letter-spacing:.2em">surface someone else's</div>
+        <p class="hint" style="margin:6px 0 8px">Paste work + the author's handle. <b>They</b> earn the
+          standing (soulbound to them); <b>you</b> earn a <b>transferable</b> finder token.</p>
+        <input type="text" id="tnSurf" placeholder="their contribution…" autocomplete="off" />
+        <input type="text" id="tnAuthor" placeholder="@author" autocomplete="off" style="margin-top:8px" />
+        <div style="margin-top:8px"><button class="btn" onclick="tnSubmit(true)">surface &amp; mine</button></div>
+      </div>
+    </div>
+    <div class="bar" id="tnOut"><span class="dim">submit or surface something to mine the first block.</span></div>
+
+    <div style="margin-top:16px">
+      <div class="step" style="letter-spacing:.2em">transfer finder tokens</div>
+      <p class="hint" style="margin:6px 0 8px">Finder tokens are transferable — a real ECDSA-signed
+        transfer, verified before it moves. (Standing has no transfer function; it will refuse.)</p>
+      <input type="text" id="tnTo" placeholder="recipient key (noe1… or any label)" autocomplete="off" />
+      <input type="number" id="tnAmt" placeholder="amount" step="0.01" min="0" style="margin-top:8px" />
+      <div style="margin-top:8px">
+        <button class="btn" onclick="tnTransfer()">sign &amp; send</button>
+        <button class="btn" onclick="tnTrySellStanding()">try to sell standing</button>
+      </div>
+      <div class="bar" id="tnTxOut"><span class="dim">move a finder token, or try to move standing.</span></div>
+    </div>
+
+    <div style="margin-top:18px;border-top:1px solid var(--line);padding-top:14px">
+      <div class="step" style="letter-spacing:.2em">explorer</div>
+      <div id="tnExplorer"></div>
+    </div>
+
+    <div style="margin-top:16px">
+      <button class="btn" onclick="tnReset()">reset testnet</button>
+      <span class="dim" style="font-size:11px">&nbsp; single-node browser testnet — real crypto, demonstrates the protocol, not a live network.</span>
+    </div>
   </div>
 
   </div><!--/app-->
@@ -781,6 +842,98 @@ function updateFly(){
     `<span class="dim">Shapley prices the taper automatically — as creators publish first, a finder's marginal contribution drops, so the cut drops. No dial.</span>`;
 }
 
+// ===== Panel 07 — browser testnet (real ECDSA + SHA-256 hash-chain, localStorage) =====
+const TN_KEY="noesis_testnet_v2";
+let tn={blocks:[],standing:{},tokens:{},corpus:[],me:null};
+const tnEnc=s=>new TextEncoder().encode(s);
+function tnB64ToBuf(b){ const s=atob(b), u=new Uint8Array(s.length); for(let i=0;i<s.length;i++)u[i]=s.charCodeAt(i); return u; }
+async function tnSha(str){ const h=await crypto.subtle.digest("SHA-256",tnEnc(str)); return Array.from(new Uint8Array(h)).map(x=>x.toString(16).padStart(2,"0")).join(""); }
+function tnSave(){ try{ localStorage.setItem(TN_KEY,JSON.stringify(tn)); }catch(e){} }
+function tnLoad(){ try{ const s=localStorage.getItem(TN_KEY); if(s) tn=JSON.parse(s); }catch(e){} }
+async function tnEnsureId(){
+  if(tn.me&&tn.me.pub) return;
+  const kp=await crypto.subtle.generateKey({name:"ECDSA",namedCurve:"P-256"},true,["sign","verify"]);
+  const pub=b64(await crypto.subtle.exportKey("raw",kp.publicKey));
+  const jwk=await crypto.subtle.exportKey("jwk",kp.privateKey);
+  tn.me={pub,jwk,tag:"noe1"+pub.slice(0,16)}; tnSave();
+}
+async function tnPriv(){ return crypto.subtle.importKey("jwk",tn.me.jwk,{name:"ECDSA",namedCurve:"P-256"},false,["sign"]); }
+async function tnPubKey(b){ return crypto.subtle.importKey("raw",tnB64ToBuf(b),{name:"ECDSA",namedCurve:"P-256"},false,["verify"]); }
+function tnShort(k){ return (typeof k==="string"&&k.length>24)?("noe1"+k.slice(0,14)+"…"):k; }
+function tnRenderId(){
+  const el=document.getElementById("tnId"); if(!el||!tn.me) return;
+  el.innerHTML=`<span class="tag yes">you</span> <span class="cy">${esc(tn.me.tag)}</span> `+
+    `<span class="dim">— real P-256 keypair, persisted in this browser. standing `+
+    `<b class="ok">${(tn.standing[tn.me.pub]||0).toFixed(2)}</b> (soulbound) · finder tokens `+
+    `<b class="cy">${(tn.tokens[tn.me.pub]||0).toFixed(2)}</b> (transferable)</span>`;
+}
+async function tnSubmit(asFinder){
+  await tnEnsureId();
+  const el=document.getElementById("tnOut");
+  const content=(document.getElementById(asFinder?"tnSurf":"tnWork").value||"").trim();
+  if(!content){ el.innerHTML=`<span class="warn">type something first.</span>`; return; }
+  const author=asFinder?((document.getElementById("tnAuthor").value||"").trim()||"@unknown"):tn.me.pub;
+  const v=novelty(content, tn.corpus.map(c=>c.text));
+  if(v===0){ el.innerHTML=`<span class="tag no">rejected</span> duplicate / non-novel — mints 0 standing, no block. <span class="dim">temporal novelty gates it.</span>`; return; }
+  const secret=b64(crypto.getRandomValues(new Uint8Array(8)));
+  const commit=await tnSha(content+"|"+secret+"|"+author);
+  const contentHash=await tnSha(content);
+  const prev=tn.blocks.length?tn.blocks[tn.blocks.length-1].hash:"genesis";
+  const height=tn.blocks.length, value=Math.round(v*1e4)/1e4, finder=asFinder?tn.me.pub:null;
+  const hash=await tnSha(prev+contentHash+author+value+height);
+  tn.blocks.push({height,prev,commit,contentHash,author,finder,value,hash});
+  tn.corpus.push({text:content,hash:contentHash,author,height});
+  tn.standing[author]=(tn.standing[author]||0)+value;
+  let cut=0;
+  if(asFinder){ cut=Math.round(0.1*value*1e4)/1e4; tn.tokens[tn.me.pub]=(tn.tokens[tn.me.pub]||0)+cut; }
+  tnSave();
+  document.getElementById(asFinder?"tnSurf":"tnWork").value="";
+  el.innerHTML=asFinder
+    ? `<span class="tag yes">block #${height} mined</span> author <span class="cy">${esc(author)}</span> earned <b class="ok">${value}</b> soulbound standing; you earned <b class="cy">${cut}</b> finder tokens. <span class="dim">provenance: commit ${commit.slice(0,12)}… at height ${height}.</span>`
+    : `<span class="tag yes">block #${height} mined</span> you earned <b class="ok">${value}</b> soulbound standing. <span class="dim">provenance: commit ${commit.slice(0,12)}… at height ${height}.</span>`;
+  tnRenderId(); tnRenderExplorer();
+}
+async function tnTransfer(){
+  await tnEnsureId();
+  const el=document.getElementById("tnTxOut");
+  const to=(document.getElementById("tnTo").value||"").trim(), amt=parseFloat(document.getElementById("tnAmt").value);
+  if(!to||!(amt>0)){ el.innerHTML=`<span class="warn">recipient and a positive amount, please.</span>`; return; }
+  const bal=tn.tokens[tn.me.pub]||0;
+  if(amt>bal){ el.innerHTML=`<span class="tag no">insufficient</span> you have <b class="cy">${bal.toFixed(2)}</b> finder tokens.`; return; }
+  const msg=`transfer:${amt}:${to}:${tn.blocks.length}`;
+  const sig=await crypto.subtle.sign({name:"ECDSA",hash:"SHA-256"},await tnPriv(),tnEnc(msg));
+  const ok=await crypto.subtle.verify({name:"ECDSA",hash:"SHA-256"},await tnPubKey(tn.me.pub),sig,tnEnc(msg));
+  if(!ok){ el.innerHTML=`<span class="tag no">signature invalid</span>`; return; }
+  tn.tokens[tn.me.pub]=bal-amt; tn.tokens[to]=(tn.tokens[to]||0)+amt; tnSave();
+  el.innerHTML=`<span class="tag yes">✓ signed &amp; verified</span> sent <b class="cy">${amt.toFixed(2)}</b> finder tokens to <span class="cy">${esc(tnShort(to))}</span>. <span class="dim">sig ${b64(sig).slice(0,20)}… verified against your key before it moved.</span>`;
+  tnRenderId(); tnRenderExplorer();
+}
+function tnTrySellStanding(){
+  document.getElementById("tnTxOut").innerHTML=`<span class="tag no">REFUSED</span> standing is soulbound — there is no transfer function to call. only finder tokens move.`;
+}
+function tnReset(){
+  try{ localStorage.removeItem(TN_KEY); }catch(e){}
+  tn={blocks:[],standing:{},tokens:{},corpus:[],me:null};
+  tnEnsureId().then(()=>{ tnRenderId(); tnRenderExplorer();
+    document.getElementById("tnOut").innerHTML=`<span class="dim">testnet reset. submit or surface to mine the first block.</span>`;
+    document.getElementById("tnTxOut").innerHTML=`<span class="dim">move a finder token, or try to move standing.</span>`; });
+}
+function tnRenderExplorer(){
+  const el=document.getElementById("tnExplorer"); if(!el) return;
+  const blocks=tn.blocks.slice().reverse().slice(0,8).map(b=>
+    `<div class="tnblock"><span class="h">block #${b.height}</span> · hash ${b.hash.slice(0,10)}… · prev ${String(b.prev).slice(0,10)}…<br>`+
+    `author <span class="cy">${esc(tnShort(b.author))}</span>${b.finder?` · finder <span class="cy">${esc(tnShort(b.finder))}</span>`:""} · value <b>${b.value}</b> · content ${b.contentHash.slice(0,10)}…</div>`
+  ).join("")||`<span class="dim">no blocks yet.</span>`;
+  const standing=Object.entries(tn.standing).sort((a,b)=>b[1]-a[1]).map(([k,v])=>
+    `<div class="tnkv"><span>${esc(tnShort(k))}</span><span class="ok">${v.toFixed(2)} <span class="dim">soulbound</span></span></div>`).join("")||`<span class="dim">none</span>`;
+  const tokens=Object.entries(tn.tokens).filter(([,v])=>v>0).sort((a,b)=>b[1]-a[1]).map(([k,v])=>
+    `<div class="tnkv"><span>${esc(tnShort(k))}</span><span class="cy">${v.toFixed(2)} <span class="dim">transferable</span></span></div>`).join("")||`<span class="dim">none</span>`;
+  el.innerHTML=`<div class="tnsub">blocks (${tn.blocks.length})</div>${blocks}`+
+    `<div class="tnsub">standing — soulbound franchise</div>${standing}`+
+    `<div class="tnsub">finder tokens — transferable</div>${tokens}`;
+}
+async function tnInit(){ tnLoad(); await tnEnsureId(); tnRenderId(); tnRenderExplorer(); }
+
 // ===== landing gate + section navigation =====
 function enterApp(){
   document.body.classList.remove("landing");
@@ -797,7 +950,7 @@ function toOverview(){
   window.scrollTo({top:0,behavior:"smooth"});
 }
 function show(n){
-  for(let i=1;i<=6;i++) document.getElementById("sec"+i).classList.toggle("hidden", i!==n);
+  for(let i=1;i<=7;i++) document.getElementById("sec"+i).classList.toggle("hidden", i!==n);
   document.querySelectorAll(".navbtn:not(.back)").forEach((b,i)=>b.classList.toggle("active", i===n-1));
   if(location.hash!=="#"+n) history.replaceState(null,"","#"+n);
   window.scrollTo({top:0,behavior:"smooth"});
@@ -811,7 +964,8 @@ setProv('bare');
 initTaper(); updateFly();
 document.getElementById("work").addEventListener("input",updateB); updateB();
 { const n=parseInt((location.hash||"").replace("#",""),10);
-  if(n>=1&&n<=6){ enterApp(); show(n); } else { document.body.classList.add("landing"); } }
+  if(n>=1&&n<=7){ enterApp(); show(n); } else { document.body.classList.add("landing"); } }
+tnInit();
 </script>
 </body>
 </html>

@@ -1,5 +1,47 @@
 # HANDOFF — Noesis "Proof of Authority you can't buy" demo (2026-07-01)
 
+> ✅ **SESSION 2026-07-01 PM — design/messaging overhaul + attack-defense doc + v3 spec.** LIVE on
+> https://noesis-poa-demo.vercel.app, all pushed to `WGlynn/noesis-poa-demo` (git WGlynn/noreply, no
+> Claude trailer). This session's changes on the demo:
+> - **Finder's-reward economics (panel 04) + flywheel (panel 06):** Maarten G's third-party-surfacer idea
+>   built in — unified native "share" action (Web Share API), 24h value-pool **lottery** (E[lottery]=π·v =
+>   same expectation as a fixed cut), soulbound-author vs transferable-finder split, **Shapley-priced =
+>   flywheel not dilution**, self-tapering subsidy with an animated flywheel (spinning wheel + orbiting
+>   value particles, speed tied to saturation) + a live taper curve. Credited to Maarten G on-page.
+> - **Provenance (panel 05):** real ECDSA (P-256) account-link widget (generate identity / sign handle↔key
+>   binding / verify — Web Crypto, no key held server-side). Honest-edge rewritten to **structural closure
+>   to the Nakamoto bound** (false timestamp can't finalize without a majority of un-buyable soulbound
+>   contribution); open frontier correctly relocated to learned `v(S)`, not the timestamp.
+> - **Panel 01 presets:** added "whale + 1 contributor" (REJECTED) and "whale + 2 contributors" (FINALIZES)
+>   — shows the floor is anti-**capture**, not anti-capital.
+> - **Visual layer:** live threshold bars (panel 01), novelty meter (02), catch-p/loss gauges + rising
+>   strength-ladder (05), expected-reward bar (04). Shared `meterBar` helper + `.ctl` slider rows (fixed a
+>   slider-crush bug under the new font).
+> - **Structure/polish (Will-driven, rapid):** **landing gate** — the app is now behind an "enter the
+>   interactive demo" page; landing is LIGHT (hero + white/bold thesis paragraph + enter only, fixed
+>   non-scrolling viewport via `body.landing`). Panels lead with the interactive; deep prose fans down
+>   behind `details.more` **learn-more expanders** (progressive disclosure). Typography: **Space Grotesk**
+>   (reading) + **JetBrains Mono** (data/chrome). Removed: soulbound panel (concept lives in 01/04/05),
+>   footer prose, live pill, "real core loaded" indicator, finalize-mini, name teaser, "real core ·
+>   webassembly" tag, the public **"Tom"** partner name (don't name partners on a public page).
+> - Panels renumbered 1–6 (01 floor · 02 novelty · 03 nash · 04 finder's reward · 05 provenance · 06 flywheel).
+>
+> ▶▶ **NEXT: PROTOTYPE v3 — browser testnet** (Will chose option 1). Full spec written:
+> `PROTOTYPE-SPEC-V3.md` (real keypairs → real commit-reveal hash-chained blocks → soulbound standing +
+> transferable finder tokens with signed transfers → explorer, all in-browser, localStorage-persisted,
+> single-node honest boundary). Say "go" to build.
+>
+> ▶ **Attack/defense (partner material):** `~/noesis/docs/ATTACK-DEFENSE.md` (PRIVATE repo) — Will
+> stress-tested the design 4 ways this session (key-sale, reuse-inflation, incumbency, "are we sure about
+> soulbound") and it strengthened under scrutiny; each attack bottoms out at the Nakamoto bound. Grounded
+> to `lib.rs`/`TOKENOMICS.md` file:lines (retention/`effective_weight`:3507/3516, `Op::Decay`:462-473/488,
+> symmetric franchise-decay:3469-3525, soulbound rationale TOKENOMICS:25-27/113-119). Franfran reply draft:
+> `~/Desktop/franfran-contribution-sybil-2026-07-01.md`. NOT yet committed to the private repo (Will's call).
+> Two open follow-ups: commit ATTACK-DEFENSE.md to private repo · condense the attack/defense pairs into
+> public demo expanders (no private file:lines).
+>
+> Memory captured this session: `primitive_provenance-gap-is-airgap-instance`, `primitive_finder-reward-shapley-flywheel`.
+
 > ✅ **PROTOTYPE 2 SHIPPED (2026-07-01): feed REAL contributions in + tabbed nav.** LIVE on
 > https://noesis-poa-demo.vercel.app. Panel 02 now has an "import a real one" box:
 > - **GitHub — live now, zero infra.** Paste a commit / PR / issue / repo URL → fetched from the public
