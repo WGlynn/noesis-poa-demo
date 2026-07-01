@@ -4,15 +4,20 @@
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>NOESIS · Proof of Authority you can't buy</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
 <style>
   :root{
     --bg:#04060c; --panel:#080d17; --panel2:#0a1019; --ink:#dbe7f5; --dim:#6f8198;
     --cyan:#22e0ff; --mag:#ff3db6; --grn:#3bffab; --amber:#ffd85e; --line:#16344a;
-    --mono:"SF Mono",ui-monospace,SFMono-Regular,Menlo,Consolas,"Roboto Mono",monospace;
+    --mono:"JetBrains Mono",ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+    --sans:"Space Grotesk",system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
   }
   *{ box-sizing:border-box; }
+  .mark,.pill,.step,.btn,.navbtn,.tag,.rc,code,input,table,.mlabel,.big,.corpus{ font-family:var(--mono); }
   html{ scroll-behavior:smooth; }
-  body{ margin:0; color:var(--ink); font-family:var(--mono); font-size:14.5px; line-height:1.65;
+  body{ margin:0; color:var(--ink); font-family:var(--sans); font-size:14.5px; line-height:1.65;
     background:
       radial-gradient(900px 460px at 50% -6%, rgba(34,224,255,.12), rgba(4,6,12,0) 62%),
       radial-gradient(700px 380px at 88% 8%, rgba(255,61,182,.08), rgba(4,6,12,0) 60%),
@@ -109,12 +114,28 @@
   .tag.yes{ color:var(--grn); border:1px solid rgba(59,255,171,.5); background:rgba(59,255,171,.06); text-shadow:0 0 10px rgba(59,255,171,.5); box-shadow:0 0 16px rgba(59,255,171,.14); }
   .tag.no{ color:var(--mag); border:1px solid rgba(255,61,182,.5); background:rgba(255,61,182,.06); text-shadow:0 0 10px rgba(255,61,182,.5); box-shadow:0 0 16px rgba(255,61,182,.12); }
   .tag.zero{ color:var(--dim); border:1px solid var(--line); background:transparent; }
-  input[type=range]{ accent-color:var(--cyan); width:100%; height:3px; }
+  input[type=range]{ accent-color:var(--cyan); width:100%; height:3px; display:block; }
+  .ctl{ margin:13px 0; }
+  .ctlrow{ display:flex; justify-content:space-between; align-items:baseline; gap:12px; font-size:12.5px; color:var(--dim); margin-bottom:8px; }
+  .ctlrow .cy{ font-size:13px; white-space:nowrap; }
   .ok{ color:var(--grn); } .no{ color:var(--mag); } .warn{ color:var(--amber); } .cy{ color:var(--cyan); } .dim{ color:var(--dim); }
   .big{ font-size:14px; font-weight:700; }
   .corpus{ font-size:12px; color:var(--dim); margin:8px 0 0; padding-left:18px; }
   .corpus li{ margin:3px 0; }
   footer{ color:var(--dim); font-size:12px; margin-top:30px; line-height:1.8; border-top:1px solid var(--line); padding-top:22px; }
+  /* landing / overview */
+  .lblock{ border-left:2px solid var(--line); padding:2px 0 2px 20px; margin:30px 0; transition:border-color .2s; }
+  .lblock:hover{ border-left-color:var(--cyan); }
+  .lblock .ln{ font-size:10.5px; color:var(--cyan); letter-spacing:.22em; text-transform:uppercase; text-shadow:0 0 10px rgba(34,224,255,.35); }
+  .lblock h3{ font-size:18px; margin:7px 0 9px; color:#eafcff; font-weight:600; letter-spacing:.01em; }
+  .lblock p{ color:var(--dim); font-size:13.5px; line-height:1.72; margin:9px 0; }
+  .enter{ display:block; width:100%; text-align:center; margin:36px 0 6px; padding:17px; border-radius:12px;
+    border:1px solid var(--cyan); background:rgba(34,224,255,.07); color:#eafcff; font-family:var(--mono);
+    font-size:14px; letter-spacing:.05em; cursor:pointer; box-shadow:0 0 26px rgba(34,224,255,.14) inset; transition:.15s; }
+  .enter:hover{ background:rgba(34,224,255,.15); box-shadow:0 0 34px rgba(34,224,255,.3) inset; text-shadow:0 0 10px var(--cyan); }
+  .enter small{ display:block; margin-top:5px; font-size:11px; color:var(--dim); letter-spacing:.02em; }
+  .backlink{ display:inline-block; margin:2px 0 16px; font-size:12px; color:var(--dim); cursor:pointer; letter-spacing:.04em; }
+  .backlink:hover{ color:var(--cyan); }
   @media (max-width:560px){
     .hero{ padding:38px 0 24px; } .hero h1{ font-size:24px; } .wrap{ padding:0 14px 76px; }
     .card{ padding:18px 15px; } input[type=number]{ width:84px; padding:6px 7px; }
@@ -132,6 +153,7 @@
     <span class="right">real core · webassembly</span>
   </div>
 
+  <div id="landing">
   <div class="hero">
     <h1>Proof of Authority,<br>except the authority is <span class="c">earned</span><br>and <span class="m">cannot be bought</span>.</h1>
     <p>Traditional Proof of Authority appoints validators. Noesis earns it: authority accrues as
@@ -142,7 +164,74 @@
       (<code>finalizes_pos_pom_fixed</code>), compiled to WebAssembly. same arithmetic the on-VM finalization script runs.</div>
   </div>
 
+  <div class="lblock">
+    <div class="ln">01 · the floor</div>
+    <h3>Capital cannot capture finalization</h3>
+    <p>Traditional Proof of Authority appoints validators. Noesis earns it — authority accrues as
+      soulbound standing from verified contribution. A block finalizes only if the signers independently
+      clear <b>50% of both</b> capital (stake) and contribution (standing), plus a supermajority.</p>
+    <p>It isn't anti-capital — it's anti-<i>capture</i>. Capital can finalize, but only with genuine
+      contribution's consent. Neither axis finalizes alone.</p>
+  </div>
+
+  <div class="lblock">
+    <div class="ln">02 · strategyproof novelty</div>
+    <h3>Standing is earned only from novel work</h3>
+    <p>An exact copy or near-duplicate earns zero — you cannot bank value by resubmitting. The honest
+      frontier, shown and not hidden: a semantic paraphrase still slips past the byte-level proxy.
+      Closing that is the learned value function we are raising to build, whose first real-data test came
+      back null — unsupported, not refuted.</p>
+  </div>
+
+  <div class="lblock">
+    <div class="ln">03 · the nash equilibrium</div>
+    <h3>Lying doesn't pay</h3>
+    <p>Impersonate someone and a fresh identity has no history — worth 0. Claim work that isn't yours and
+      it's a bonded self-report, caught and slashed. Pad or paraphrase and novelty is 0. Sybil-split and
+      you pay the identity cost K times for nothing. Only honest contribution has a positive payoff, so
+      it is the unique best response — the Nash equilibrium. Demonstrated for unilateral and cyclic lies;
+      the symmetric collusion ring is the named frontier.</p>
+  </div>
+
+  <div class="lblock">
+    <div class="ln">04 · the finder's reward</div>
+    <h3>Surface someone else's work, and get paid for it</h3>
+    <p>Finding and surfacing real work is work too. So anyone can share a contribution — even one that
+      isn't theirs — and the protocol splits two <i>different</i> rewards down two <i>different</i> axes:
+      the author earns <b>soulbound</b> standing, the finder earns a <b>transferable</b> cut. Claiming your
+      own work and surfacing another's are the same share action, told apart by whether your key is linked
+      to the author's handle.</p>
+    <p>Priced by marginal contribution (Shapley), the finder can never be paid more than the value they
+      caused to exist — so it is a flywheel, not dilution. Mechanism proposed by Maarten G.</p>
+  </div>
+
+  <div class="lblock">
+    <div class="ln">05 · provenance</div>
+    <h3>An airgap problem, closed by honesty</h3>
+    <p>The chain can't see who made something, or when, out in the world. The tempting fix — fetch it
+      from an API and trust their word — just relocates trust to an oracle. Noesis does the opposite: it
+      makes lying about provenance unprofitable, so it never has to reach across the gap.</p>
+    <p>The commit is the native timestamp; a false prior-art claim is a bonded losing bet. Stronger proof
+      — a signed commit, or Pragma's observer-overlap — doesn't <i>create</i> trust, it lowers the
+      enforcement cost. Pragma is additive, never a dependency. Nothing here holds a key.</p>
+  </div>
+
+  <div class="lblock">
+    <div class="ln">06 · the flywheel</div>
+    <h3>A subsidy that retires itself</h3>
+    <p>Paying finders a cut populates the chain from both sides, then fades. Creators race to self-publish
+      and keep 100%; finders sweep the rest. As the chain fills, Shapley automatically shrinks the finder's
+      cut — the catalyst consumes itself as it succeeds. Three actors, pure self-interest, one outcome: a
+      full, well-priced chain is the equilibrium. The protocol can run its own finder and route that cut
+      to protocol-owned liquidity or public goods.</p>
+  </div>
+
+  <button class="enter" onclick="enterApp()">enter the interactive demo →<small>six panels, live — poke the mechanism yourself</small></button>
+  </div><!--/landing-->
+
+  <div id="app" style="display:none">
   <nav class="nav" id="nav">
+    <button class="navbtn back" onclick="toOverview()">← overview</button>
     <button class="navbtn active" onclick="show(1)">01 · the floor</button>
     <button class="navbtn" onclick="show(2)">02 · novelty</button>
     <button class="navbtn" onclick="show(3)">03 · nash</button>
@@ -154,9 +243,7 @@
   <div class="card" id="sec1">
     <div class="step">01 — the anti-concentration floor</div>
     <h2>Capital cannot capture finalization</h2>
-    <p class="hint">Finalizes only if the signers independently clear <b>50% of BOTH</b> capital (stake)
-      and contribution (earned standing), plus a 2/3 supermajority. Edit any number, toggle signers, and
-      try to make capital alone win. The verdict runs through the real core.</p>
+    <p class="hint">Edit any number, toggle who signs, and try to make capital alone win — both 50% floors run through the real core.</p>
     <div class="tscroll"><table id="tbl">
       <thead><tr><th>Actor</th><th>Stake</th><th>Standing (soulbound)</th><th>Signs?</th></tr></thead>
       <tbody id="rows"></tbody>
@@ -177,8 +264,7 @@
   <div class="card hidden" id="sec2">
     <div class="step">02 — strategyproof novelty</div>
     <h2>Type a contribution and try to game it</h2>
-    <p class="hint">Standing is earned only from novel work. Paste an existing entry (earns 0), reword it,
-      or write something new. Commit it, then try to re-submit or paraphrase.</p>
+    <p class="hint">Paste an existing entry (earns 0), reword it, or write something new — then try to re-submit or paraphrase.</p>
     <div class="dim" style="font-size:11px">existing record</div>
     <ul class="corpus" id="corpus"></ul>
     <input type="text" id="work" placeholder="type or paste a contribution…" autocomplete="off" />
@@ -238,9 +324,7 @@
   <div class="card hidden" id="sec4">
     <div class="step">04 — the finder's reward</div>
     <h2>Surface someone else's work, and get paid for it</h2>
-    <p class="hint">You don't have to be the author to add value &mdash; <b>finding</b> and submitting real
-      contributions is work too. So anyone can surface a contribution (paste a URL in panel 02), and the
-      protocol splits two <i>different</i> rewards down two <i>different</i> axes:</p>
+    <p class="hint">Two rewards, two axes — the author's <b>soulbound</b> standing and the finder's <b>transferable</b> cut:</p>
     <div class="tscroll"><table>
       <thead><tr><th>who</th><th>earns</th><th>kind</th></tr></thead>
       <tbody>
@@ -283,10 +367,7 @@
   <div class="card hidden" id="sec5">
     <div class="step">05 — provenance</div>
     <h2>Provenance is an airgap problem &mdash; and honesty is what closes it</h2>
-    <p class="hint">The chain can't see who made something, or when, out in the world. The tempting fix is
-      to <i>reach across</i> the gap &mdash; fetch it from a GitHub or Reddit API and trust their word.
-      That just relocates trust to an oracle. Noesis does the opposite: it makes lying about provenance
-      <b>unprofitable</b>, so it never has to reach across.</p>
+    <p class="hint">Provenance without an oracle: the commit is the native timestamp, and lying about it is a bonded losing bet.</p>
 
     <div class="bar">
       <span class="cy">the engine</span> &mdash; the on-chain <b>commit</b> is the native timestamp
@@ -342,11 +423,15 @@
       (many independent observers) and hands the agent an external credential. Cryptographic (Noesis) and
       redundancy-based (Pragma) integrity &mdash; same goal, two threat models. Nothing here holds a key.</p>
 
-    <p class="hint" style="margin-top:12px;border-left:2px solid var(--mag);padding-left:12px">
-      <b>the honest edge:</b> this holds against rational unilateral and cyclic lies. A <i>symmetric
-      collusion ring</i> &mdash; many observers agreeing on the same false timestamp &mdash; is the open
-      frontier (the same one panel 03 names). Pragma raises the cost of assembling that ring; it doesn't
-      yet make it impossible. We show the boundary.</p>
+    <p class="hint" style="margin-top:12px;border-left:2px solid var(--cyan);padding-left:12px">
+      <b>redundancy vs. structure:</b> a pure overlap scheme can be forged by a large enough ring of
+      agreeing observers &mdash; that is the ceiling of redundancy alone. Noesis closes it structurally:
+      a false timestamp cannot <i>finalize</i> without clearing the anti-concentration floor, so forging
+      provenance would require a majority of <b>earned, soulbound contribution</b> &mdash; which capital
+      cannot buy. What remains is only the irreducible Nakamoto bound &mdash; the genuine
+      contributor-majority itself defecting &mdash; at which point "collusion" and "the legitimate
+      authority deciding" are the same event. The still-open research frontier is elsewhere: the learned
+      value function <code>v(S)</code> (the case panel 03 names), whose first real-data test came back null.</p>
 
     <p class="hint" style="margin-top:14px;color:var(--dim)">This is the airgap Noesis and VibeSwap are
       built to close &mdash; on-chain trust made equal to off-chain trust by making dishonesty
@@ -357,9 +442,7 @@
   <div class="card hidden" id="sec6">
     <div class="step">06 — the flywheel</div>
     <h2>The finder's reward is a flywheel that retires itself</h2>
-    <p class="hint">Paying finders a cut doesn't dilute creators &mdash; priced by <b>marginal contribution</b>
-      (Shapley), over-payment is impossible. Instead it populates the chain from both sides, then fades as
-      it succeeds.</p>
+    <p class="hint">The finder subsidy populates the chain from both sides, then retires itself.</p>
 
     <svg viewBox="0 0 260 200" style="width:100%;max-width:300px;display:block;margin:16px auto 4px">
       <path id="loop" d="M130,30 A70,70 0 1,1 129.9,30" fill="none" stroke="#16344a" stroke-width="1" opacity=".5"/>
@@ -409,9 +492,8 @@
 
     <div class="hint" style="margin-top:20px">drag the chain from empty to saturated &mdash; watch the finder
       subsidy retire itself:</div>
-    <div style="display:grid;grid-template-columns:auto 1fr auto;gap:9px 12px;align-items:center;margin-top:8px;font-size:12.5px">
-      <span class="dim">chain saturation</span><input type="range" min="0" max="1" step="0.01" value="0.15" oninput="setSat(this.value)"><span class="cy" id="satv">15%</span>
-    </div>
+    <div class="ctl" style="margin-top:8px"><div class="ctlrow"><span>chain saturation</span><span class="cy" id="satv">15%</span></div>
+      <input type="range" min="0" max="1" step="0.01" value="0.15" oninput="setSat(this.value)"></div>
     <div class="viz" id="vizF"></div>
 
     <svg viewBox="0 0 300 130" style="width:100%;max-width:420px;display:block;margin:10px auto 2px">
@@ -430,6 +512,8 @@
       can run its own finder and route that cut to <b>protocol-owned liquidity</b> or <b>public goods</b>.
       <span class="dim">(economics developed with Maarten G, 2026-07-01.)</span></p>
   </div>
+
+  </div><!--/app-->
 
   <footer>
     <a href="https://github.com/WGlynn/noesis-poa-demo">source</a> is the audit &nbsp;·&nbsp; view-source and <code>poa_demo.py</code>.
@@ -601,10 +685,13 @@ async function fetchGitHub(u){
 let ic={g:1.0,b:1.0,p:0.9};
 function renderIC(){
   document.getElementById("ic").innerHTML=`
-    <div style="display:grid;grid-template-columns:auto 1fr auto;gap:9px 12px;align-items:center;font-size:12.5px;margin-top:8px">
-      <span class="dim">over-claim gain&nbsp;g</span><input type="range" min="0" max="5" step="0.1" value="${ic.g}" oninput="setIC('g',this.value)"><span class="cy" id="icg">${ic.g.toFixed(1)}</span>
-      <span class="dim">bond&nbsp;b</span><input type="range" min="0" max="5" step="0.1" value="${ic.b}" oninput="setIC('b',this.value)"><span class="cy" id="icb">${ic.b.toFixed(1)}</span>
-      <span class="dim">catch-probability&nbsp;p</span><input type="range" min="0" max="1" step="0.01" value="${ic.p}" oninput="setIC('p',this.value)"><span class="cy" id="icp">${ic.p.toFixed(2)}</span>
+    <div style="margin-top:8px">
+      <div class="ctl"><div class="ctlrow"><span>over-claim gain&nbsp;&nbsp;<span class="cy">g</span></span><span class="cy" id="icg">${ic.g.toFixed(1)}</span></div>
+        <input type="range" min="0" max="5" step="0.1" value="${ic.g}" oninput="setIC('g',this.value)"></div>
+      <div class="ctl"><div class="ctlrow"><span>bond&nbsp;&nbsp;<span class="cy">b</span></span><span class="cy" id="icb">${ic.b.toFixed(1)}</span></div>
+        <input type="range" min="0" max="5" step="0.1" value="${ic.b}" oninput="setIC('b',this.value)"></div>
+      <div class="ctl"><div class="ctlrow"><span>catch-probability&nbsp;&nbsp;<span class="cy">p</span></span><span class="cy" id="icp">${ic.p.toFixed(2)}</span></div>
+        <input type="range" min="0" max="1" step="0.01" value="${ic.p}" oninput="setIC('p',this.value)"></div>
     </div>`;
 }
 function setIC(k,v){ ic[k]=parseFloat(v);
@@ -619,9 +706,11 @@ function updateIC(){
 let fr={v:5.0,pool:0.10,dup:false};
 function renderFR(){
   document.getElementById("fr").innerHTML=`
-    <div style="display:grid;grid-template-columns:auto 1fr auto;gap:9px 12px;align-items:center;font-size:12.5px;margin-top:8px">
-      <span class="dim">value of the work you surfaced&nbsp;v</span><input type="range" min="0" max="10" step="0.1" value="${fr.v}" oninput="setFR('v',this.value)"><span class="cy" id="frv">${fr.v.toFixed(1)}</span>
-      <span class="dim">finder pool rate&nbsp;π <span style="opacity:.7">(slice of 24h value)</span></span><input type="range" min="0" max="0.2" step="0.01" value="${fr.pool}" oninput="setFR('pool',this.value)"><span class="cy" id="frp">${(fr.pool*100).toFixed(0)}%</span>
+    <div style="margin-top:8px">
+      <div class="ctl"><div class="ctlrow"><span>value of the work you surfaced&nbsp;&nbsp;<span class="cy">v</span></span><span class="cy" id="frv">${fr.v.toFixed(1)}</span></div>
+        <input type="range" min="0" max="10" step="0.1" value="${fr.v}" oninput="setFR('v',this.value)"></div>
+      <div class="ctl"><div class="ctlrow"><span>finder pool rate&nbsp;&nbsp;<span class="cy">π</span> <span style="opacity:.6">(slice of 24h value)</span></span><span class="cy" id="frp">${(fr.pool*100).toFixed(0)}%</span></div>
+        <input type="range" min="0" max="0.2" step="0.01" value="${fr.pool}" oninput="setFR('pool',this.value)"></div>
     </div>
     <div style="margin-top:12px">
       <button class="btn" onclick="setFR('dup',false)">an original link</button>
@@ -749,10 +838,22 @@ function updateFly(){
     `<span class="dim">Shapley prices the taper automatically — as creators publish first, a finder's marginal contribution drops, so the cut drops. No dial.</span>`;
 }
 
-// ===== section navigation =====
+// ===== landing gate + section navigation =====
+function enterApp(){
+  document.getElementById("landing").style.display="none";
+  document.getElementById("app").style.display="";
+  if(!/^#[1-6]$/.test(location.hash||"")) show(1);
+  window.scrollTo({top:0});
+}
+function toOverview(){
+  document.getElementById("app").style.display="none";
+  document.getElementById("landing").style.display="";
+  history.replaceState(null,"","#");
+  window.scrollTo({top:0,behavior:"smooth"});
+}
 function show(n){
   for(let i=1;i<=6;i++) document.getElementById("sec"+i).classList.toggle("hidden", i!==n);
-  document.querySelectorAll(".navbtn").forEach((b,i)=>b.classList.toggle("active", i===n-1));
+  document.querySelectorAll(".navbtn:not(.back)").forEach((b,i)=>b.classList.toggle("active", i===n-1));
   if(location.hash!=="#"+n) history.replaceState(null,"","#"+n);
   window.scrollTo({top:0,behavior:"smooth"});
 }
@@ -764,7 +865,7 @@ renderFR(); updateFR();
 setProv('bare');
 initTaper(); updateFly();
 document.getElementById("work").addEventListener("input",updateB); updateB();
-{ const n=parseInt((location.hash||"").replace("#",""),10); if(n>=1&&n<=6) show(n); }
+{ const n=parseInt((location.hash||"").replace("#",""),10); if(n>=1&&n<=6){ enterApp(); show(n); } }
 </script>
 </body>
 </html>
