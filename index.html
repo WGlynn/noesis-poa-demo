@@ -230,13 +230,30 @@
       never <i>buy</i> franchise. And the reward only pays if the work clears the novelty floor, so
       spamming duplicates to farm finder fees earns <b>0</b>. The mechanism you already saw does the policing.</p>
 
-    <div class="hint" style="margin-top:16px">move the sliders &mdash; try to farm it with a duplicate:</div>
+    <div class="bar" style="margin-top:16px">
+      <span class="cy">one action, two outcomes</span> &mdash; claiming your own work and surfacing
+      someone else's are the <b>same share</b>, the ordinary share button every app already has. The
+      protocol tells them apart by whether your Noesis key is linked to the author's handle
+      (<a href="#6" onclick="show(6)">panel 06</a>): share your own &rarr; you're the author (soulbound
+      standing); share another's &rarr; you're the finder (a lottery ticket).
+    </div>
+    <div style="margin-top:12px">
+      <button class="btn" onclick="shareNoesis()">▲ share (native)</button>
+      <span id="shareout" class="dim" style="font-size:11.5px"></span>
+    </div>
+
+    <div class="hint" style="margin-top:16px">how the finder is paid &mdash; a 24h value-pool lottery.
+      move the sliders, or try to farm it with a duplicate:</div>
     <div id="fr"></div>
     <div class="bar" id="frout"></div>
 
-    <p class="hint" style="margin-top:16px">Ingestion mechanism proposed by <b>Maarten G</b> (2026-07-01):
-      <span class="dim">"let users share anything, even if it's not theirs, with a possibility of reward as a
-      third party." This is that idea, made safe by putting it on the transferable axis.</span></p>
+    <p class="hint" style="margin-top:16px">Mechanism proposed by <b>Maarten G</b> (2026-07-01): let anyone
+      <i>share</i> a contribution &mdash; even one that isn't theirs &mdash; through the ordinary share
+      action, and enter the sharers of original links into a lottery for a slice of the period's realized
+      value. <span class="dim">Made safe here by three locks: the reward is transferable-only (never the
+      author's soulbound authority); tickets require an <i>original</i> surface that clears the novelty
+      floor; and credit routes to the author through the social-account link (panel 06). Same fair
+      expectation as a fixed cut, with a share-and-maybe-win UX.</span></p>
   </div>
 
   <div class="card hidden" id="sec6">
@@ -470,29 +487,47 @@ function updateIC(){
   else el.innerHTML=`expected payoff of lying = <span class="big no">${ev.toFixed(2)}</span> · <span class="tag no">lying would pay</span> <span class="dim">— which is exactly what a high catch-probability p (peer-prediction) and a real bond b are there to prevent.</span>`;
 }
 
-// ===== Panel 05 — the finder's reward (Maarten G's third-party ingestion idea) =====
-let fr={v:5.0,rho:0.10,novel:true};
+// ===== Panel 05 — finder's reward: unified share action + 24h value lottery (Maarten G) =====
+let fr={v:5.0,pool:0.10,dup:false};
 function renderFR(){
   document.getElementById("fr").innerHTML=`
     <div style="display:grid;grid-template-columns:auto 1fr auto;gap:9px 12px;align-items:center;font-size:12.5px;margin-top:8px">
-      <span class="dim">realized value of the work&nbsp;v</span><input type="range" min="0" max="10" step="0.1" value="${fr.v}" oninput="setFR('v',this.value)"><span class="cy" id="frv">${fr.v.toFixed(1)}</span>
-      <span class="dim">finder's cut&nbsp;ρ</span><input type="range" min="0" max="0.25" step="0.01" value="${fr.rho}" oninput="setFR('rho',this.value)"><span class="cy" id="frr">${(fr.rho*100).toFixed(0)}%</span>
+      <span class="dim">value of the work you surfaced&nbsp;v</span><input type="range" min="0" max="10" step="0.1" value="${fr.v}" oninput="setFR('v',this.value)"><span class="cy" id="frv">${fr.v.toFixed(1)}</span>
+      <span class="dim">finder pool rate&nbsp;π <span style="opacity:.7">(slice of 24h value)</span></span><input type="range" min="0" max="0.2" step="0.01" value="${fr.pool}" oninput="setFR('pool',this.value)"><span class="cy" id="frp">${(fr.pool*100).toFixed(0)}%</span>
     </div>
     <div style="margin-top:12px">
-      <button class="btn" onclick="setFR('novel',true)">novel work</button>
-      <button class="btn" onclick="setFR('novel',false)">a duplicate (try to farm)</button>
+      <button class="btn" onclick="setFR('dup',false)">an original link</button>
+      <button class="btn" onclick="setFR('dup',true)">a duplicate (already surfaced)</button>
+      <button class="btn" onclick="drawFR()">run the 24h draw ⟳</button>
     </div>`;
 }
-function setFR(k,v){ fr[k]=(k==="novel")?v:parseFloat(v);
-  const el=document.getElementById("fr"+(k==="rho"?"r":k)); if(el) el.textContent=(k==="rho")?(fr.rho*100).toFixed(0)+"%":fr.v.toFixed(1);
+function setFR(k,v){ fr[k]=(k==="dup")?v:parseFloat(v);
+  const id=(k==="pool")?"frp":(k==="v")?"frv":null, el=id&&document.getElementById(id);
+  if(el) el.textContent=(k==="pool")?(fr.pool*100).toFixed(0)+"%":fr.v.toFixed(1);
   updateFR(); }
 function updateFR(){
   const el=document.getElementById("frout");
-  if(!fr.novel){ el.innerHTML=`<span class="tag no">0 / 0</span> duplicate &mdash; novelty floor rejects it, so the author earns <b>0</b> standing and the finder earns <b>0</b>. <span class="dim">farming duplicates for finder fees pays nothing.</span>`; return; }
-  const author=fr.v, finder=fr.rho*fr.v;
+  if(fr.dup){ el.innerHTML=`<span class="tag no">0 tickets</span> a duplicate isn't an <i>original</i> surface — only the first to bring a piece in gets tickets, and it must clear the novelty floor. <span class="dim">re-sharing a viral link earns nothing. no farming.</span>`; return; }
+  const expected=fr.pool*fr.v;
   el.innerHTML=
-    `author earns <span class="big ok">${author.toFixed(2)} standing</span> <span class="dim">(soulbound, non-transferable)</span><br>`+
-    `you (finder) earn <span class="big cy">${finder.toFixed(2)}</span> <span class="dim">(transferable — a ${(fr.rho*100).toFixed(0)}% cut of realized value, never any of the author's authority)</span>`;
+    `you enter the <b>24h value lottery</b> with tickets ∝ the value you surfaced.<br>`+
+    `expected reward = π·v = <span class="big cy">${expected.toFixed(2)}</span> `+
+    `<span class="dim">— the same expectation as a fixed ${(fr.pool*100).toFixed(0)}% cut, paid as a share-and-maybe-win draw. variance buys virality; the fair expectation is identical. the author's soulbound standing is untouched either way.</span>`;
+}
+function drawFR(){
+  if(fr.dup){ updateFR(); return; }
+  const el=document.getElementById("frout");
+  const p=Math.max(0.05,Math.min(0.9, fr.v/12 + fr.pool)), win=Math.random()<p, ev=(fr.pool*fr.v).toFixed(2);
+  el.innerHTML= win
+    ? `<span class="tag yes">YOU WON THIS WINDOW</span> the finder pool pays out to you. <span class="dim">P(win) rose with the value you surfaced; long-run average tends to π·v = ${ev}.</span>`
+    : `<span class="tag zero">no win this window</span> <span class="dim">tickets ∝ surfaced value; over many windows your average tends to π·v = ${ev}. surface more real work → more tickets.</span>`;
+}
+function shareNoesis(){
+  const url="https://noesis-poa-demo.vercel.app/#5", out=document.getElementById("shareout");
+  const data={title:"Noesis — Proof of Authority you can't buy",text:"Share a real contribution; the protocol prices it. The author earns soulbound standing, you get a shot at the finder pool.",url};
+  if(navigator.share){ navigator.share(data).then(()=>{ if(out) out.textContent="shared."; }).catch(()=>{}); }
+  else if(navigator.clipboard){ navigator.clipboard.writeText(url).then(()=>{ if(out) out.textContent="link copied — paste it anywhere (no native share sheet here)."; }); }
+  else if(out){ out.textContent=url; }
 }
 
 // ===== Panel 06 — provenance (airgap -> honesty-load-bearing -> Pragma additive) =====
