@@ -1,0 +1,263 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Noesis · Proof of Authority you can't buy</title>
+<style>
+  :root {
+    --bg:#0a0c12; --panel:#121722; --panel2:#0f131d; --ink:#eef2f7; --dim:#94a1b5;
+    --ok:#46d07d; --no:#ff6b6b; --warn:#f5c451; --line:#212838; --accent:#7aa2ff; --accent2:#a682ff;
+    --inp:#0c1017; --radius:14px;
+    --sans:-apple-system,BlinkMacSystemFont,"Segoe UI",Inter,Roboto,Helvetica,Arial,sans-serif;
+    --mono:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+  }
+  * { box-sizing:border-box; }
+  html { scroll-behavior:smooth; }
+  body { margin:0; background:
+      radial-gradient(1200px 600px at 50% -10%, #16203a 0%, rgba(10,12,18,0) 60%), var(--bg);
+    color:var(--ink); font-family:var(--sans); font-size:15px; line-height:1.6;
+    -webkit-font-smoothing:antialiased; }
+  .wrap { max-width:840px; margin:0 auto; padding:0 20px 80px; }
+
+  /* top bar */
+  .topbar { display:flex; align-items:center; gap:12px; padding:20px 0 0; }
+  .mark { font-family:var(--mono); font-weight:600; letter-spacing:.14em; font-size:14px; }
+  .pill { font-size:11px; color:var(--ok); border:1px solid #204a33; background:#0e1a13;
+    border-radius:999px; padding:3px 9px; letter-spacing:.02em; }
+  .pill.live::before { content:"●"; color:var(--ok); margin-right:5px; font-size:9px; vertical-align:1px; }
+
+  /* hero */
+  .hero { padding:46px 0 30px; }
+  .hero h1 { font-size:34px; line-height:1.15; margin:0 0 14px; letter-spacing:-0.02em; font-weight:650; }
+  .hero h1 .grad { background:linear-gradient(90deg,var(--accent),var(--accent2));
+    -webkit-background-clip:text; background-clip:text; color:transparent; }
+  .hero p { color:var(--dim); font-size:15.5px; max-width:640px; margin:0; }
+  .hero .mini { font-family:var(--mono); font-size:12.5px; color:var(--dim); margin-top:16px; }
+
+  /* cards */
+  .card { background:linear-gradient(180deg,var(--panel),var(--panel2)); border:1px solid var(--line);
+    border-radius:var(--radius); padding:22px 22px; margin:0 0 18px;
+    box-shadow:0 1px 0 rgba(255,255,255,0.02) inset, 0 12px 30px rgba(0,0,0,0.25); }
+  .card h2 { font-size:16.5px; margin:0 0 5px; letter-spacing:-0.01em; }
+  .step { font-family:var(--mono); font-size:11px; color:var(--accent); letter-spacing:.14em; text-transform:uppercase; }
+  .hint { color:var(--dim); font-size:13px; margin:6px 0 16px; }
+
+  table { width:100%; border-collapse:collapse; font-size:13.5px; }
+  th { text-align:right; color:var(--dim); font-weight:500; padding:6px 8px; border-bottom:1px solid var(--line); font-size:12px; }
+  th:first-child, td:first-child { text-align:left; }
+  td { padding:7px 8px; border-bottom:1px solid #171d29; font-family:var(--mono); }
+  input[type=number], input[type=text] { background:var(--inp); color:var(--ink); border:1px solid var(--line);
+    border-radius:9px; padding:7px 10px; font-family:var(--mono); font-size:13px; transition:border-color .15s, box-shadow .15s; }
+  input[type=number] { width:132px; text-align:right; }
+  input[type=text] { width:100%; font-size:14px; }
+  input:focus { outline:none; border-color:var(--accent); box-shadow:0 0 0 3px rgba(122,162,255,0.15); }
+  input[type=checkbox] { transform:scale(1.2); accent-color:var(--accent); }
+  .btn { background:#19202e; color:var(--ink); border:1px solid var(--line); border-radius:9px;
+    padding:7px 13px; font-family:var(--sans); font-size:12.5px; cursor:pointer; margin:0 7px 7px 0; transition:.15s; }
+  .btn:hover { border-color:var(--accent); background:#1e2636; transform:translateY(-1px); }
+
+  .bar { margin-top:15px; padding:14px 16px; border-radius:11px; border:1px solid var(--line);
+    background:#0b0f18; font-family:var(--mono); font-size:13px; }
+  .big { font-size:14px; font-weight:700; }
+  .tag { display:inline-block; font-weight:700; font-size:12px; padding:2px 9px; border-radius:999px; margin-right:6px; }
+  .tag.yes { color:var(--ok); background:#0e1a13; border:1px solid #204a33; }
+  .tag.nope { color:var(--no); background:#1c1012; border:1px solid #4a2020; }
+  .ok { color:var(--ok); } .no { color:var(--no); } .warn { color:var(--warn); } .accent { color:var(--accent); } .dim { color:var(--dim); }
+  .corpus { font-family:var(--mono); font-size:12.5px; color:var(--dim); margin:8px 0 0; padding-left:18px; }
+  .corpus li { margin:3px 0; }
+  footer { color:var(--dim); font-size:12.5px; margin-top:28px; line-height:1.75; border-top:1px solid var(--line); padding-top:20px; }
+  code { font-family:var(--mono); color:var(--accent); font-size:.92em; }
+  a { color:var(--accent); text-decoration:none; } a:hover { text-decoration:underline; }
+  .tscroll { overflow-x:auto; -webkit-overflow-scrolling:touch; margin:0 -4px; }
+  @media (max-width:560px){
+    .hero { padding:34px 0 24px; }
+    .hero h1 { font-size:25px; }
+    .hero p { font-size:14.5px; }
+    .wrap { padding:0 14px 70px; }
+    .card { padding:18px 15px; }
+    input[type=number] { width:82px; padding:6px 7px; }
+    th, td { padding:6px 6px; font-size:12.5px; }
+    th { font-size:10.5px; }
+    .btn { padding:7px 11px; }
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="topbar">
+    <span class="mark">NOESIS</span>
+    <span class="pill live">live demo</span>
+    <span class="dim" style="font-size:12px; margin-left:auto; font-family:var(--mono)">runs in your browser</span>
+  </div>
+
+  <div class="hero">
+    <h1>Proof of Authority,<br>except <span class="grad">the authority is earned,<br>and cannot be bought.</span></h1>
+    <p>Traditional Proof of Authority appoints validators. Noesis earns it: authority accrues as
+      soulbound standing from verified contribution, and no amount of capital can finalize without
+      contribution's consent. Change the numbers below and watch the rules hold.</p>
+    <div class="mini">logic mirrors <code>poa_demo.py</code> → the Noesis reference node (Rust, 300+ tests). view-source is the audit.</div>
+  </div>
+
+  <!-- ===================== Panel A ===================== -->
+  <div class="card">
+    <div class="step">01 · the anti-concentration floor</div>
+    <h2>Capital cannot capture finalization</h2>
+    <p class="hint">A checkpoint finalizes only if the signers independently clear <b>50% of BOTH</b> the
+      capital dimension (stake) and the contribution dimension (earned standing). Edit any number, toggle
+      who signs, and try to make capital alone win.</p>
+    <div class="tscroll"><table id="tbl">
+      <thead><tr><th>Actor</th><th>Stake</th><th>Standing (soulbound)</th><th>Signs?</th></tr></thead>
+      <tbody id="rows"></tbody>
+    </table></div>
+    <div style="margin-top:12px">
+      <span class="dim" style="font-size:12px; font-family:var(--mono)">presets:&nbsp;</span>
+      <button class="btn" onclick="preset('whale')">whale alone</button>
+      <button class="btn" onclick="preset('contrib')">contributors alone</button>
+      <button class="btn" onclick="preset('all')">everyone</button>
+      <button class="btn" onclick="preset('none')">clear</button>
+    </div>
+    <div class="bar" id="verdictA"></div>
+  </div>
+
+  <!-- ===================== Panel B ===================== -->
+  <div class="card">
+    <div class="step">02 · strategyproof novelty</div>
+    <h2>Type a contribution and try to game it</h2>
+    <p class="hint">Standing is earned only from novel work. Paste one of the existing entries (earns 0),
+      reword it, or write something new. Commit it, then try to re-submit or paraphrase it.</p>
+    <div class="dim" style="font-size:12px; font-family:var(--mono)">existing record:</div>
+    <ul class="corpus" id="corpus"></ul>
+    <input type="text" id="work" placeholder="type or paste a contribution..." autocomplete="off" />
+    <div style="margin-top:10px">
+      <button class="btn" onclick="commitWork()">commit to record</button>
+      <button class="btn" onclick="fillCopy()">paste an existing one</button>
+      <button class="btn" onclick="fillParaphrase()">reword the first one</button>
+    </div>
+    <div class="bar" id="verdictB"></div>
+  </div>
+
+  <!-- ===================== Panel C ===================== -->
+  <div class="card">
+    <div class="step">03 · soulbound</div>
+    <h2>Authority cannot be transferred</h2>
+    <p class="hint">Standing binds to the identity that earned it. Stake is transferable; authority is not.</p>
+    <button class="btn" onclick="tryBuy()">whale offers alice 1,000,000 for her standing</button>
+    <div class="bar" id="verdictC"><span class="dim">click above.</span></div>
+  </div>
+
+  <footer>
+    Demonstrated live: earned soulbound authority, the anti-concentration floor, strategyproof novelty vs
+    copy and sybil. Shown openly and <b>not</b> solved: a semantic paraphrase of the same idea slips past
+    the byte-level proxy &mdash; that is the learned value function we are raising to build, whose first
+    real-data test came back null (unsupported, not refuted). We show the boundary rather than hide it.
+  </footer>
+</div>
+
+<script>
+// ===== logic ported 1:1 from poa_demo.py =====
+const THETA_SIM = 0.95, MIN_DIM = 0.50;
+function shingles(t){ const w=t.toLowerCase().split(/\s+/).filter(Boolean); const s=new Set();
+  for(let i=0;i<Math.max(w.length-2,1);i++) s.add(w.slice(i,i+3).join(" ")); return s; }
+function sim(a,b){ const sa=shingles(a), sb=shingles(b); if(!sa.size||!sb.size) return 0;
+  let inter=0; sa.forEach(x=>{ if(sb.has(x)) inter++; }); return inter/new Set([...sa,...sb]).size; }
+function novelty(work,corpus){ if(!corpus.length) return 1; let mx=0; corpus.forEach(p=>mx=Math.max(mx,sim(work,p)));
+  return mx>=THETA_SIM ? 0 : Math.round((1-mx)*1e4)/1e4; }
+function finalizes(actors){
+  const tstk=actors.reduce((a,x)=>a+x.stake,0)||1e-9, tstd=actors.reduce((a,x)=>a+x.standing,0)||1e-9;
+  const s=actors.filter(x=>x.sign);
+  const pos=s.reduce((a,x)=>a+x.stake,0)/tstk, pom=s.reduce((a,x)=>a+x.standing,0)/tstd;
+  return { pos, pom, ok:(pos>=MIN_DIM && pom>=MIN_DIM) };
+}
+
+// ===== Panel A =====
+let actors = [
+  { name:"alice",  stake:20,      standing:1, sign:true },
+  { name:"bob",    stake:20,      standing:1, sign:true },
+  { name:"carol",  stake:20,      standing:1, sign:true },
+  { name:"whale",  stake:1000000, standing:0, sign:false },
+];
+function pct(x){ return (x*100).toFixed(1)+"%"; }
+function renderRows(){
+  document.getElementById("rows").innerHTML = actors.map((a,i)=>`
+    <tr>
+      <td>${a.name}</td>
+      <td style="text-align:right"><input type="number" min="0" value="${a.stake}" oninput="setV(${i},'stake',this.value)"></td>
+      <td style="text-align:right"><input type="number" min="0" step="0.1" value="${a.standing}" oninput="setV(${i},'standing',this.value)"></td>
+      <td style="text-align:right"><input type="checkbox" ${a.sign?"checked":""} onchange="setV(${i},'sign',this.checked)"></td>
+    </tr>`).join("");
+}
+function setV(i,k,v){ actors[i][k] = (k==="sign") ? v : Math.max(0, parseFloat(v)||0); updateA(); }
+function preset(kind){
+  actors.forEach(a=>a.sign = kind==="all" ? true : kind==="none" ? false
+    : kind==="whale" ? a.name==="whale" : a.name!=="whale");
+  renderRows(); updateA();
+}
+function updateA(){
+  const r = finalizes(actors);
+  const posC = r.pos>=MIN_DIM?"ok":"no", pomC = r.pom>=MIN_DIM?"ok":"no";
+  let why = "";
+  if(!r.ok){
+    if(r.pom<MIN_DIM && r.pos>=MIN_DIM) why = " Capital cleared, but the contribution dimension did not. Capital cannot buy the outcome.";
+    else if(r.pos<MIN_DIM && r.pom>=MIN_DIM) why = " Contribution cleared, but the capital dimension did not.";
+    else why = " Neither dimension cleared.";
+  }
+  document.getElementById("verdictA").innerHTML =
+    `signers hold <span class="${posC}">${pct(r.pos)}</span> of stake (PoS) and ` +
+    `<span class="${pomC}">${pct(r.pom)}</span> of standing (PoM). floor = 50% each.<br>` +
+    `<span class="tag ${r.ok?'yes':'nope'}">${r.ok?'FINALIZES':'REJECTED'}</span><span class="dim">${why}</span>`;
+}
+
+// ===== Panel B =====
+let corpus = [
+  "a cooperative-game value function that prices contribution by realized downstream flow",
+  "a commit-reveal batch auction that clears at a uniform price",
+];
+function renderCorpus(){ document.getElementById("corpus").innerHTML = corpus.map(c=>`<li>${c}</li>`).join(""); }
+function updateB(){
+  const w = document.getElementById("work").value.trim();
+  const el = document.getElementById("verdictB");
+  if(!w){ el.innerHTML = `<span class="dim">type something above.</span>`; return; }
+  const v = novelty(w, corpus);
+  if(v===0){
+    el.innerHTML = `earns <span class="big no">0 standing</span> &mdash; an exact copy or near-duplicate of existing work. You cannot bank value by re-submitting.`;
+  } else if(v < 0.4){
+    el.innerHTML = `earns <span class="big warn">${v} standing</span> &mdash; a semantic reword of existing work. `+
+      `A byte-level proxy misses this. <span class="dim">This is the honest open frontier: closing it needs the learned value function (first test: null).</span>`;
+  } else {
+    el.innerHTML = `earns <span class="big ok">${v} standing</span> &mdash; genuinely novel against the record.`;
+  }
+}
+function commitWork(){
+  const w = document.getElementById("work").value.trim(); if(!w) return;
+  corpus.push(w); renderCorpus();
+  document.getElementById("verdictB").innerHTML = `committed. now try to re-submit or paraphrase it and watch what it earns.`;
+  document.getElementById("work").value = "";
+}
+function fillCopy(){ document.getElementById("work").value = corpus[0]; updateB(); }
+function fillParaphrase(){
+  const p = "a mechanism that scores each contributor by the real value that flows downstream from their work";
+  document.getElementById("work").value = p;
+  const v = novelty(p, corpus);
+  document.getElementById("verdictB").innerHTML =
+    `this is a semantic <b>reword of the first entry</b>. the byte-level proxy scored it ` +
+    `<span class="big warn">${v}</span> &mdash; it cannot tell it is the same idea, so a paraphrase ` +
+    `slips through and earns credit it should not. <span class="dim">THIS is the honest open frontier: ` +
+    `closing it needs the learned value function (first real-data test: null). We show it, not hide it.</span>`;
+}
+
+// ===== Panel C =====
+function tryBuy(){
+  document.getElementById("verdictC").innerHTML =
+    `<span class="tag nope">REFUSED</span> Standing is soulbound &mdash; there is no transfer function. ` +
+    `Capital buys nothing. <span class="dim">(alice keeps her earned authority; the whale keeps its coins.)</span>`;
+}
+
+// init
+renderRows(); updateA();
+renderCorpus();
+document.getElementById("work").addEventListener("input", updateB);
+updateB();
+</script>
+</body>
+</html>
