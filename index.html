@@ -120,6 +120,7 @@
     <button class="navbtn" onclick="show(2)">02 · novelty</button>
     <button class="navbtn" onclick="show(3)">03 · soulbound</button>
     <button class="navbtn" onclick="show(4)">04 · nash</button>
+    <button class="navbtn" onclick="show(5)">05 · finder's reward</button>
   </nav>
 
   <div class="card" id="sec1">
@@ -205,6 +206,33 @@
       (tested, <code>nash_honesty</code>). The symmetric-lie collusion ring (everyone agrees on the same lie)
       and adaptive / Goodhart-robustness (the learned value measure) are the openly-named frontier — the
       bonded information-score backstop and the learned v(S) whose first real-data test came back null.</p>
+  </div>
+
+  <div class="card hidden" id="sec5">
+    <div class="step">05 — the finder's reward</div>
+    <h2>Surface someone else's work, and get paid for it</h2>
+    <p class="hint">You don't have to be the author to add value &mdash; <b>finding</b> and submitting real
+      contributions is work too. So anyone can surface a contribution (paste a URL in panel 02), and the
+      protocol splits two <i>different</i> rewards down two <i>different</i> axes:</p>
+    <div class="tscroll"><table>
+      <thead><tr><th>who</th><th>earns</th><th>kind</th></tr></thead>
+      <tbody>
+        <tr><td>the <b>author</b> (@ from the source)</td><td>standing, priced by realized value</td><td style="text-align:right"><span class="tag yes">SOULBOUND</span></td></tr>
+        <tr><td><b>you</b>, the finder</td><td>a cut of that realized value</td><td style="text-align:right"><span class="tag" style="color:var(--cyan);border:1px solid rgba(34,224,255,.5);background:rgba(34,224,255,.06)">TRANSFERABLE</span></td></tr>
+      </tbody>
+    </table></div>
+    <p class="hint" style="margin-top:14px">Keeping them on separate axes is the whole trick: the finder is
+      paid in the fungible layer, never in the author's soulbound authority &mdash; so surfacing work can
+      never <i>buy</i> franchise. And the reward only pays if the work clears the novelty floor, so
+      spamming duplicates to farm finder fees earns <b>0</b>. The mechanism you already saw does the policing.</p>
+
+    <div class="hint" style="margin-top:16px">move the sliders &mdash; try to farm it with a duplicate:</div>
+    <div id="fr"></div>
+    <div class="bar" id="frout"></div>
+
+    <p class="hint" style="margin-top:16px">Ingestion mechanism proposed by <b>Maarten G</b> (2026-07-01):
+      <span class="dim">"let users share anything, even if it's not theirs, with a possibility of reward as a
+      third party." This is that idea, made safe by putting it on the transferable axis.</span></p>
   </div>
 
   <footer>
@@ -393,9 +421,34 @@ function updateIC(){
   else el.innerHTML=`expected payoff of lying = <span class="big no">${ev.toFixed(2)}</span> · <span class="tag no">lying would pay</span> <span class="dim">— which is exactly what a high catch-probability p (peer-prediction) and a real bond b are there to prevent.</span>`;
 }
 
+// ===== Panel 05 — the finder's reward (Maarten G's third-party ingestion idea) =====
+let fr={v:5.0,rho:0.10,novel:true};
+function renderFR(){
+  document.getElementById("fr").innerHTML=`
+    <div style="display:grid;grid-template-columns:auto 1fr auto;gap:9px 12px;align-items:center;font-size:12.5px;margin-top:8px">
+      <span class="dim">realized value of the work&nbsp;v</span><input type="range" min="0" max="10" step="0.1" value="${fr.v}" oninput="setFR('v',this.value)"><span class="cy" id="frv">${fr.v.toFixed(1)}</span>
+      <span class="dim">finder's cut&nbsp;ρ</span><input type="range" min="0" max="0.25" step="0.01" value="${fr.rho}" oninput="setFR('rho',this.value)"><span class="cy" id="frr">${(fr.rho*100).toFixed(0)}%</span>
+    </div>
+    <div style="margin-top:12px">
+      <button class="btn" onclick="setFR('novel',true)">novel work</button>
+      <button class="btn" onclick="setFR('novel',false)">a duplicate (try to farm)</button>
+    </div>`;
+}
+function setFR(k,v){ fr[k]=(k==="novel")?v:parseFloat(v);
+  const el=document.getElementById("fr"+(k==="rho"?"r":k)); if(el) el.textContent=(k==="rho")?(fr.rho*100).toFixed(0)+"%":fr.v.toFixed(1);
+  updateFR(); }
+function updateFR(){
+  const el=document.getElementById("frout");
+  if(!fr.novel){ el.innerHTML=`<span class="tag no">0 / 0</span> duplicate &mdash; novelty floor rejects it, so the author earns <b>0</b> standing and the finder earns <b>0</b>. <span class="dim">farming duplicates for finder fees pays nothing.</span>`; return; }
+  const author=fr.v, finder=fr.rho*fr.v;
+  el.innerHTML=
+    `author earns <span class="big ok">${author.toFixed(2)} standing</span> <span class="dim">(soulbound, non-transferable)</span><br>`+
+    `you (finder) earn <span class="big cy">${finder.toFixed(2)}</span> <span class="dim">(transferable — a ${(fr.rho*100).toFixed(0)}% cut of realized value, never any of the author's authority)</span>`;
+}
+
 // ===== section navigation =====
 function show(n){
-  for(let i=1;i<=4;i++) document.getElementById("sec"+i).classList.toggle("hidden", i!==n);
+  for(let i=1;i<=5;i++) document.getElementById("sec"+i).classList.toggle("hidden", i!==n);
   document.querySelectorAll(".navbtn").forEach((b,i)=>b.classList.toggle("active", i===n-1));
   if(location.hash!=="#"+n) history.replaceState(null,"","#"+n);
   window.scrollTo({top:0,behavior:"smooth"});
@@ -404,8 +457,9 @@ function show(n){
 // init
 renderRows(); updateA(); renderCorpus();
 renderIC(); updateIC();
+renderFR(); updateFR();
 document.getElementById("work").addEventListener("input",updateB); updateB();
-{ const n=parseInt((location.hash||"").replace("#",""),10); if(n>=1&&n<=4) show(n); }
+{ const n=parseInt((location.hash||"").replace("#",""),10); if(n>=1&&n<=5) show(n); }
 </script>
 </body>
 </html>
