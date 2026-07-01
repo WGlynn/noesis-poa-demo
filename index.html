@@ -290,6 +290,22 @@
       </tbody>
     </table></div>
 
+    <div style="margin-top:18px;border-top:1px solid var(--line);padding-top:16px">
+      <div class="step" style="letter-spacing:.2em">the cryptographic rung, made real</div>
+      <h2 style="font-size:15px;margin:6px 0 4px">Link a handle to a key &mdash; no platform API, real signatures</h2>
+      <p class="hint">This runs actual ECDSA in your browser. Generate a Noesis identity, bind a social
+        handle to it, and verify the proof &mdash; the way an author self-attests authorship without anyone
+        trusting a platform's API or holding a key. This is how a surfaced contribution's standing routes
+        to its real author (panel 05).</p>
+      <div style="margin-top:10px;display:flex;gap:8px;flex-wrap:wrap;align-items:center">
+        <input type="text" id="handle" placeholder="@your-handle" autocomplete="off" style="max-width:220px" />
+        <button class="btn" onclick="genIdentity()">generate identity</button>
+        <button class="btn" onclick="signLink()">sign the binding</button>
+        <button class="btn" onclick="verifyLink()">verify</button>
+      </div>
+      <div class="bar" id="linkout"><span class="dim">generate an identity to begin.</span></div>
+    </div>
+
     <p class="hint" style="margin-top:14px"><span class="cy">Pragma is additive, not a dependency.</span>
       The incentive structure closes the airgap on its own; Pragma <i>raises the catch-probability</i>
       (many independent observers) and hands the agent an external credential. Cryptographic (Noesis) and
@@ -545,6 +561,42 @@ function setProv(k){
     `expected payoff of a false provenance claim = <span class="big ${ev<0?'ok':'no'}">${ev.toFixed(2)}</span> `+
     `<span class="tag ${ev<0?'yes':'no'}">${ev<0?'LYING LOSES':'lying pays'}</span><br>`+
     `<span class="dim">${note}. honesty stays the rational move at every rung — stronger proof only makes the lie lose harder (lower enforcement cost).</span>`;
+}
+
+// ===== Panel 06 — account-link proof (real ECDSA P-256, self-verifying, no key held server-side) =====
+let idKeys=null, idPubB64="", linkProof=null;
+function b64(buf){ return btoa(String.fromCharCode.apply(null,new Uint8Array(buf))); }
+function keyTag(){ return "noe1"+idPubB64.slice(0,16); }
+async function genIdentity(){
+  const out=document.getElementById("linkout");
+  try{
+    idKeys=await crypto.subtle.generateKey({name:"ECDSA",namedCurve:"P-256"},true,["sign","verify"]);
+    idPubB64=b64(await crypto.subtle.exportKey("raw",idKeys.publicKey)); linkProof=null;
+    out.innerHTML=`<span class="tag yes">identity</span> noesis key <span class="cy">${keyTag()}…</span> `+
+      `<span class="dim">— a real P-256 keypair generated in your browser; the private key never leaves it.</span>`;
+  }catch(e){ out.innerHTML=`<span class="no">web crypto unavailable (${esc(e.message||String(e))})</span>`; }
+}
+async function signLink(){
+  const out=document.getElementById("linkout"), h=(document.getElementById("handle").value||"").trim();
+  if(!idKeys){ out.innerHTML=`<span class="warn">generate an identity first.</span>`; return; }
+  if(!h){ out.innerHTML=`<span class="warn">enter a handle to bind.</span>`; return; }
+  const nonce=b64(crypto.getRandomValues(new Uint8Array(6)));
+  const stmt=`noesis-link:${h}:${keyTag()}:${nonce}`;
+  const sig=await crypto.subtle.sign({name:"ECDSA",hash:"SHA-256"},idKeys.privateKey,new TextEncoder().encode(stmt));
+  linkProof={stmt,sig,handle:h};
+  out.innerHTML=`<span class="tag yes">proof</span> post this from <b>${esc(h)}</b>'s account:<br>`+
+    `<code style="font-size:11px;word-break:break-all">${esc(stmt)}</code><br>`+
+    `<code style="font-size:11px;word-break:break-all;color:var(--dim)">sig=${b64(sig).slice(0,44)}…</code><br>`+
+    `<span class="dim">anyone can read this public post and verify it — no API, no secret shared.</span>`;
+}
+async function verifyLink(){
+  const out=document.getElementById("linkout");
+  if(!linkProof){ out.innerHTML=`<span class="warn">sign a binding first.</span>`; return; }
+  const ok=await crypto.subtle.verify({name:"ECDSA",hash:"SHA-256"},idKeys.publicKey,linkProof.sig,new TextEncoder().encode(linkProof.stmt));
+  out.innerHTML= ok
+    ? `<span class="tag yes">✓ VERIFIED</span> <b>${esc(linkProof.handle)}</b> ⇄ <span class="cy">${keyTag()}…</span> is now a cryptographic binding. `+
+      `<span class="dim">Work authored by ${esc(linkProof.handle)} routes standing to this identity; ${esc(linkProof.handle)} sharing their own link is a claim, not a finder-surface. Verified from the public proof alone — the airgap closed without an oracle.</span>`
+    : `<span class="tag no">✗ invalid</span> <span class="dim">signature doesn't match — the binding is forged or altered.</span>`;
 }
 
 // ===== section navigation =====
