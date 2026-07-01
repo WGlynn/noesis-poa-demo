@@ -40,7 +40,7 @@
   .hero h1{ font-size:33px; line-height:1.18; margin:0 0 16px; font-weight:700; letter-spacing:-.01em; text-transform:uppercase; }
   .hero h1 .c{ color:#eafcff; text-shadow:0 0 14px rgba(34,224,255,.55), 0 0 34px rgba(34,224,255,.25); }
   .hero h1 .m{ color:var(--mag); text-shadow:0 0 14px rgba(255,61,182,.5); }
-  .hero p{ color:var(--dim); font-size:14px; max-width:660px; margin:0; letter-spacing:.01em; }
+  .hero p{ color:#eafcff; font-size:17px; font-weight:500; line-height:1.6; max-width:680px; margin:0; letter-spacing:.005em; }
   .hero .mini{ margin-top:16px; font-size:12px; color:var(--dim); }
   .rc{ display:inline-block; margin-top:14px; font-size:11.5px; letter-spacing:.05em; padding:5px 12px; border-radius:8px;
     border:1px solid var(--line); color:var(--dim); }
@@ -166,7 +166,6 @@
 <div class="wrap">
   <div class="topbar">
     <span class="mark">NOESIS</span>
-    <span class="pill">live</span>
     <span class="right">real core · webassembly</span>
   </div>
 
@@ -176,13 +175,9 @@
     <p>Traditional Proof of Authority appoints validators. Noesis earns it: authority accrues as
       soulbound standing from verified contribution, and no amount of capital can finalize without
       contribution's consent. Change the numbers and watch the rule hold.</p>
-    <div class="rc" id="rc">initializing real core…</div>
-    <div class="mini">the finalize verdict is computed by the real <span class="cy">noesis-core</span>
-      (<code>finalizes_pos_pom_fixed</code>), compiled to WebAssembly. same arithmetic the on-VM finalization script runs.</div>
   </div>
 
 <p class="lead">An interactive demo, not a whitepaper — six mechanisms you can poke by hand. Make capital try to buy a block. Try to game novelty. Watch a lie lose money. Spin the finder-reward flywheel and watch it retire itself.</p>
-  <p class="teaser">the floor · novelty · the nash equilibrium · finder's reward · provenance · the flywheel</p>
 
   <button class="enter" onclick="enterApp()">enter the interactive demo →<small>six panels, live — poke the mechanism yourself</small></button>
   </div><!--/landing-->
@@ -475,12 +470,8 @@
 // ===== real core (wasm) =====
 let W = null;
 fetch("noesis_poa.wasm").then(r=>r.arrayBuffer()).then(b=>WebAssembly.instantiate(b,{}))
-  .then(({instance})=>{ W=instance.exports;
-    document.getElementById("rc").className="rc on";
-    document.getElementById("rc").innerHTML="✓ real core loaded — <b>noesis-core → wasm</b>";
-    updateA();
-  })
-  .catch(e=>{ document.getElementById("rc").innerHTML="⚠ could not load the real core ("+e+")"; updateA(); });
+  .then(({instance})=>{ W=instance.exports; updateA(); })
+  .catch(()=>{ updateA(); });
 
 // ===== novelty (faithful port of poa_demo.py, pending its wasm export) =====
 const THETA_SIM=0.95;
